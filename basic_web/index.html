@@ -172,6 +172,22 @@
         .form-input { border: 1px solid; }
         .btn-loading { pointer-events: none; opacity: 0.7; }
 
+        /* Login box */
+        .login-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+        .login-box .btn-social:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .login-box .btn-primary:hover {
+            background: rgb(30, 110, 230);
+        }
+        .login-box a:hover { color: var(--tb-blue); }
+
         /* Mobile: touch targets and tap highlight */
         @media (max-width: 1023px) {
             .ux-screenshot-box { -webkit-tap-highlight-color: rgba(24, 97, 217, 0.2); }
@@ -193,7 +209,10 @@
             <img src="assets/logo.png" alt="TradingBoard Logo" class="h-6 md:h-7 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling?.classList.remove('hidden');" />
             <span class="text-xl font-semibold hidden">TradingBoard.ai</span>
         </a>
-        <a href="#contact" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Contact</a>
+        <div class="flex items-center gap-6 lg:gap-10 ml-auto">
+            <a href="#contact" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Contact</a>
+            <a href="#login" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Login</a>
+        </div>
     </nav>
 
     <!-- Lightbox -->
@@ -384,6 +403,52 @@
         </header>
     </div>
 
+    <!-- LOGIN VIEW -->
+    <div id="login-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24 flex items-center justify-center">
+            <div class="login-box w-full max-w-md p-8 sm:p-10 space-y-6 relative z-10">
+                <h1 class="text-2xl font-semibold text-white text-center">Log in to your account</h1>
+
+                <div class="space-y-3">
+                    <button type="button" class="btn-social w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-zinc-700 text-zinc-200 transition cursor-pointer">
+                        <i data-lucide="chrome" class="w-5 h-5"></i>
+                        <span>Log in with Google</span>
+                    </button>
+                    <button type="button" class="btn-social w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-zinc-700 text-zinc-200 transition cursor-pointer">
+                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                        <span>Log in with Facebook</span>
+                    </button>
+                    <button type="button" class="btn-social w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-zinc-700 text-zinc-200 transition cursor-pointer">
+                        <i data-lucide="apple" class="w-5 h-5"></i>
+                        <span>Log in with Apple</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <span class="flex-1 h-px bg-zinc-700"></span>
+                    <span class="text-zinc-500 text-sm">OR</span>
+                    <span class="flex-1 h-px bg-zinc-700"></span>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-zinc-400">Email</label>
+                    <input type="email" placeholder="you@example.com" class="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-[var(--tb-blue)] transition" disabled>
+                    <label class="block text-sm font-medium text-zinc-400">Password</label>
+                    <input type="password" placeholder="••••••••" class="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-[var(--tb-blue)] transition" disabled>
+                    <button type="button" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-white bg-[var(--tb-blue)] transition cursor-pointer">Log in</button>
+                </div>
+
+                <div class="text-center">
+                    <a href="#login" class="text-sm text-zinc-400 hover:underline cursor-pointer">Forgot password?</a>
+                </div>
+
+                <p class="text-center text-zinc-400 text-sm pt-2 border-t border-zinc-800">
+                    New to TradingBoard.ai? <a href="#login" class="text-[var(--tb-blue)] font-medium hover:underline cursor-pointer">Sign up</a>
+                </p>
+            </div>
+        </header>
+    </div>
+
     <footer class="py-8 sm:py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase relative z-10 px-4">
         © <span id="footer-year"></span> TradingBoard.ai | Next-Gen Systematic Alpha
     </footer>
@@ -394,10 +459,12 @@
         var cubes = [];
         function getPageFromHash() {
             var hash = (location.hash || '').replace(/^#/, '');
-            return hash === 'contact' ? 'contact' : 'home';
+            if (hash === 'contact') return 'contact';
+            if (hash === 'login') return 'login';
+            return 'home';
         }
         function showPage(pageId) {
-            var desiredHash = pageId === 'contact' ? '#contact' : '#home';
+            var desiredHash = pageId === 'contact' ? '#contact' : (pageId === 'login' ? '#login' : '#home');
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
             var el = document.getElementById(pageId + '-page');
