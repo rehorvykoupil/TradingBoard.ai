@@ -1,0 +1,88 @@
+I would like to create an html page that I can use as the beautiful Home page of TradingBoard.ai.
+1. The logo is here https://drive.usercontent.google.com/u/0/uc?id=1P7rashXqbDSALuio45iOcqd91yGEYqvi. download it and prepare for the html site. If you will regenerate it, make sure that is exactly 1:1. If it doesn't work, use as the thumbnail https://drive.google.com/thumbnail?id=1veSP1vCbGQp3dJELcBhGwaAbsLiK9d9Q&sz=w500   . The logo contains the icon and the text so there is no needed to have an aditional text "TradingBoard.ai".
+
+The HOMEPAGE
+
+2. The style should be as https://antigravity.google/ or other Google AI web pages
+3. The background color should be black
+4. There should be a rotating (the lines should be shining - like stars with bluered light) white cube like here https://corvusresearch.com/ - on the right of the text. There will be a small ball in the cube that will bounce off the walls. When the user scrolls with the page, the cube is scrolling togehter with the text and is not fixed on one page.
+5. The main label will be "THE DESKTOP TRAP Ends Here." - The text should be on the left and just on greyscale -no blue, green or other colors. The text "THE DESKTOP TRAP" should be on one line.
+5a. There will be white shining (not blinking) and slowly moving stars on the background of the web page
+6. There is also the text "TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha across Stocks, Futures, Crypto, CFDs, and Forex."
+
+7. There should be a CTA Box: [ Enter your email ] [ Request Early Access ]
+8. There should be sections containing the Heading, Caption, the text (keep it as it is) and the picture (you generate the pictures -- Antigravity/Google-like, the pictures should be like a shining rounded box with a color and an icon inside, all boxes should be the same wide): 
+ a) "FalconScript™: Legacy Logic, Modern Speed" 
+	Caption: Zero-Friction Migration.
+	Copy: Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.
+	Visual Suggestion: the picture containing the code -- more than two lines
+
+ b) "Operationally Lean: Reclaim Your Time" 
+	Caption: Institutional Infrastructure, Zero Maintenance.
+	Copy: Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.
+	Visual Suggestion: 
+
+ c) "Portfolio-First Architecture" 
+	Caption: Scale Beyond Single Strategies.
+	Copy: Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester. Manage correlation and risk at the portfolio level, not just the trade level.
+	Visual Suggestion: the picture containing the icon of the tree + subtree 
+
+ d) "Integrated AI Co-Pilot"
+	Caption: Explainable AI (XAI) for Strategy Design.
+	Copy: Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.
+	Visual Suggestion: the picture containing the icon of 4-star as usually for AI agents.
+
+ e) "The Mentor Hub"
+	Caption: Monetize Your Expertise.
+	Copy: A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.
+	Visual Suggestion: the picture containing the icon with 3 persons, one is bigger
+
+ f) "Collaborative Intelligence"
+	Caption: Built for Teams.
+	Copy: Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.
+	Visual Suggestion: the picture containing the icon with 4 persons, all the same size
+ g) "Heading: Revolutionary UX: The "Google Drive" of Alpha"
+	Caption: "Complex logic. Simple organization." - it should be colored as other captions.
+	Copy: Stop digging through fragmented folders and desktop files. TradingBoard.ai introduces a familiar, cloud-native interface to manage hundreds of strategies and portfolios as easily as a shared document. Drag, drop, and deploy with a single click."
+	Visual Suggestion: Visual Implementation (The "Interactive Screenshot")
+		To keep the "Antigravity" look when the user clicks the picture:
+		The "Closed" State: The screenshot should have slightly rounded corners and a subtle "Glassmorphism" effect (a light glow behind it). It should look like it's floating. It should respect other pictures so it should be colored a little bit.  
+		The "Hover" State: When the user hovers, add a "Magnifying Glass" icon or a subtle zoom effect to hint that it is clickable.
+		The "Expanded" State (Lightbox): Instead of just opening a raw file, the screenshot should expand into a high-definition overlay with a dark, blurred background. This keeps the focus entirely on your beautiful UI. The size should respect the resolution of the picture to sharp.
+		The screenshot: https://drive.google.com/file/d/1ybWK-G3jTybeRCSGzy47NqGpYXYS8eVV/view?usp=sharing - perhaps you should use it as https://drive.google.com/thumbnail?id=1ybWK-G3jTybeRCSGzy47NqGpYXYS8eVV 
+
+9. The colors of TradingBoard are blue R24 G97 B217, red R235 G67 B51, Yellow R250 G205 B34, and Green R41 G178 B94. So you use colours to be in harmony with these.
+
+
+10. Add the menu on the top, "Contact"
+
+11. Add the CTA Box: [ Enter your email ] [ Request Early Access ] to the end as it is on the top.
+
+
+The Contact page
+
+12. Headline
+The text "Let’s shape the future of alpha together." Should be the same font and size and ith the same distance from the top as "THE DESKTOP TRAP Ends Here." on the main page.
+The text "Whether you're a mentor looking to scale, an expert trader, or a potential partner—we're listening." should be the same font and size as the text "TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha" on the main page.
+
+
+13. The "Light" Form (Optional)
+If you want a form, keep it to 4 fields maximum:
+
+Name
+
+Email
+
+Role (Dropdown: Individual Trader, Trading Mentor, Institutional Partner, Investor)
+
+Message (Optional)
+
+
+14. The text: "Or contact us at
+info@tradingboard.ai"
+
+15. The text should be on the left
+
+16. There should be the rotating cube on the right as it is on the main page. The cube is scrolled together with the text.
+
+17. There should be the stars as it is on the main page

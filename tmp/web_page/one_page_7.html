@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: rgb(24, 97, 217);
+            --brand-red: rgb(235, 67, 51);
+            --brand-yellow: rgb(250, 205, 34);
+            --brand-green: rgb(41, 178, 94);
+            --bg-black: #000000;
+            --text-gray: #9aa0a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo img { height: 100%; }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        #cube-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            width: 100%;
+            height: 80vh;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            background: linear-gradient(to bottom, #fff 40%, rgba(255,255,255,0.4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtext {
+            max-width: 700px;
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+
+        /* --- CTA Box --- */
+        .cta-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-container input {
+            background: transparent;
+            border: none;
+            padding: 0 25px;
+            color: white;
+            flex-grow: 1;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .cta-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .cta-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.02);
+        }
+
+        /* --- Features Section --- */
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 100px;
+            align-items: center;
+            margin-bottom: 180px;
+        }
+
+        .feature-row.reverse {
+            direction: rtl;
+        }
+        .feature-row.reverse .text-content {
+            direction: ltr;
+        }
+
+        .caption {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-row h2 {
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .feature-row p {
+            color: var(--text-gray);
+            font-size: 1.15rem;
+            line-height: 1.8;
+        }
+
+        /* --- Abstract Visual Placeholders (Google Style) --- */
+        .visual-box {
+            width: 100%;
+            aspect-ratio: 16/10;
+            background: #0a0a0a;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-inner {
+            width: 80%;
+            height: 60%;
+            background: linear-gradient(145deg, #111, #050505);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        /* Specific visual accents for each box */
+        .v-blue { border-top: 2px solid var(--brand-blue); }
+        .v-red { border-top: 2px solid var(--brand-red); }
+        .v-yellow { border-top: 2px solid var(--brand-yellow); }
+        .v-green { border-top: 2px solid var(--brand-green); }
+
+        .glow-spot {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        footer {
+            padding: 100px 50px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .feature-row, .feature-row.reverse {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+            h1 { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <!-- Replace 'logo.png' with your actual file name -->
+            <img src="logo.png" alt="TradingBoard Logo">
+            TradingBoard.ai
+        </div>
+        <div style="display: flex; gap: 30px; font-size: 0.9rem; font-weight: 500;">
+            <a href="#" style="color: white; text-decoration: none; opacity: 0.7;">Technology</a>
+            <a href="#" style="color: white; text-decoration: none; opacity: 0.7;">Ecosystem</a>
+            <a href="#" style="color: white; text-decoration: none; opacity: 0.7;">Pricing</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div id="cube-container"></div>
+        
+        <h1>THE DESKTOP TRAP <br>Ends Here.</h1>
+        <p class="hero-subtext">
+            TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+        </p>
+
+        <div class="cta-container">
+            <input type="email" placeholder="Enter your email">
+            <button class="cta-btn">Request Early Access</button>
+        </div>
+    </header>
+
+    <main class="section-container">
+        
+        <!-- Section A -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue);">Zero-Friction Migration</span>
+                <h2>FalconScript™: <br>Legacy Logic, Modern Speed</h2>
+                <p>Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow-spot" style="background: var(--brand-blue); top: 10%; right: 10%;"></div>
+                <div class="visual-inner v-blue">
+                    <div style="padding: 20px; font-family: monospace; font-size: 0.8rem; color: #555;">
+                        <span style="color: var(--brand-blue)">if</span> (Close > Average(Close, 20)) <br>
+                        &nbsp;&nbsp;<span style="color: var(--brand-green)">Buy</span> next bar at market;
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section B -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red);">Institutional Infrastructure</span>
+                <h2>Operationally Lean: <br>Reclaim Your Time</h2>
+                <p>Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow-spot" style="background: var(--brand-red); bottom: 10%; left: 10%;"></div>
+                <div class="visual-inner v-red" style="display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 50%; height: 2px; background: rgba(255,255,255,0.1); position: relative;">
+                        <div style="position: absolute; width: 10px; height: 10px; background: var(--brand-red); border-radius: 50%; left: 40%; top: -4px; box-shadow: 0 0 15px var(--brand-red);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section C -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-yellow);">Scale Beyond Single Strategies</span>
+                <h2>Portfolio-First Architecture</h2>
+                <p>Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester. Manage correlation and risk at the portfolio level.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow-spot" style="background: var(--brand-yellow); top: 20%; left: 20%;"></div>
+                <div class="visual-inner v-yellow" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px;">
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                    <div style="background: var(--brand-yellow); opacity: 0.2; border-radius: 4px;"></div>
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section D -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-green);">Explainable AI (XAI)</span>
+                <h2>Integrated AI Co-Pilot</h2>
+                <p>Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow-spot" style="background: var(--brand-green); top: 10%; right: 10%;"></div>
+                <div class="visual-inner v-green" style="overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(41, 178, 94, 0.05) 20px, rgba(41, 178, 94, 0.05) 21px);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section E -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue);">Monetize Your Expertise</span>
+                <h2>The Mentor Hub</h2>
+                <p>A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow-spot" style="background: var(--brand-blue); bottom: 10%; right: 10%;"></div>
+                <div class="visual-inner v-blue" style="display: flex; gap: 10px; align-items: flex-end; padding: 20px;">
+                    <div style="width: 20%; height: 40%; background: rgba(255,255,255,0.05);"></div>
+                    <div style="width: 20%; height: 70%; background: var(--brand-blue); opacity: 0.4;"></div>
+                    <div style="width: 20%; height: 55%; background: rgba(255,255,255,0.05);"></div>
+                    <div style="width: 20%; height: 90%; background: rgba(255,255,255,0.05);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section F -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red);">Built for Teams</span>
+                <h2>Collaborative Intelligence</h2>
+                <p>Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.</p>
+            </div>
+            <div class="visual-box">
+                <div class="visual-inner v-red" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(235, 67, 51, 0.3)" stroke-width="1" />
+                        <circle cx="50" cy="50" r="10" fill="var(--brand-red)" />
+                        <circle cx="20" cy="20" r="5" fill="white" opacity="0.5" />
+                        <circle cx="80" cy="20" r="5" fill="white" opacity="0.5" />
+                        <circle cx="50" cy="85" r="5" fill="white" opacity="0.5" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2024 TradingBoard.ai. Built for the Next Generation of Alpha.</p>
+    </footer>
+
+    <script>
+        // --- Three.js Rotating Shining Cube Implementation ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('cube-container').appendChild(renderer.domElement);
+
+        // Create a wireframe box
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const wireframe = new THREE.EdgesGeometry(geometry);
+        
+        // Multi-layered material for "Shining" effect
+        const material = new THREE.LineBasicMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.3
+        });
+        
+        const cube = new THREE.LineSegments(wireframe, material);
+        scene.add(cube);
+
+        // Add a glowing core point
+        const coreGeom = new THREE.IcosahedronGeometry(0.5, 2);
+        const coreMat = new THREE.MeshBasicMaterial({ 
+            color: 0x1861d9, // Brand Blue
+            transparent: true,
+            opacity: 0.4
+        });
+        const core = new THREE.Mesh(coreGeom, coreMat);
+        scene.add(core);
+
+        // Add lights to make edges pop
+        const pointLight1 = new THREE.PointLight(0xeb4333, 1, 10); // Brand Red
+        pointLight1.position.set(2, 2, 2);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x29b25e, 1, 10); // Brand Green
+        pointLight2.position.set(-2, -2, 2);
+        scene.add(pointLight2);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            cube.rotation.x += 0.003;
+            cube.rotation.y += 0.005;
+            
+            core.rotation.x -= 0.005;
+            core.scale.set(
+                1 + Math.sin(Date.now() * 0.002) * 0.1,
+                1 + Math.sin(Date.now() * 0.002) * 0.1,
+                1 + Math.sin(Date.now() * 0.002) * 0.1
+            );
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

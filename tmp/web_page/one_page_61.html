@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --tb-blue: rgb(24, 97, 217);
+            --tb-red: rgb(235, 67, 51);
+            --tb-yellow: rgb(250, 205, 34);
+            --tb-green: rgb(41, 178, 94);
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Fixed Star Background */
+        #star-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- THE ALIGNMENT LOGIC --- */
+        .page-header {
+            position: relative;
+            padding-top: 320px; 
+            padding-bottom: 200px;
+            min-height: 100vh;
+            z-index: 10;
+        }
+
+        /* Headlines - Grayscale Only */
+        .hero-h1 {
+            background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 500;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            text-transform: uppercase;
+            white-space: nowrap; 
+            font-size: clamp(1.8rem, 5.5vw, 5.5rem);
+        }
+
+        .hero-p {
+            color: #A1A1AA;
+            font-weight: 300;
+            line-height: 1.6;
+            max-width: 40rem;
+            font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+        }
+
+        /* Shining Box Visuals */
+        .feature-box {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 16 / 10;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+        .feature-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--glow-color) 0%, transparent 75%);
+            opacity: 0.15;
+        }
+
+        /* Screenshot Visual (Section g) */
+        .ux-screenshot-box {
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(var(--glow-rgb), 0.1);
+        }
+        .ux-screenshot-box:hover {
+            transform: scale(1.03);
+            border-color: var(--glow-color);
+        }
+
+        /* Lightbox Overlay - Sharp and Big */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #lightbox-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            image-rendering: -webkit-optimize-contrast; /* Ensure sharpness */
+        }
+
+        /* CTA Wrapper */
+        .cta-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            max-width: 500px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 20;
+        }
+        .cta-input { background: transparent; border: none; outline: none; color: white; padding: 10px 24px; flex-grow: 1; }
+
+        /* Form Inputs */
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+            transition: border 0.3s;
+            color: white;
+        }
+        .form-input:focus { border-color: var(--tb-blue); }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .page-view { display: none; opacity: 0; position: relative; z-index: 10; }
+        .page-view.active { display: block; opacity: 1; transition: opacity 0.5s ease; }
+        
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Stars Layer -->
+    <div id="star-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 py-6 bg-black/10 backdrop-blur-sm">
+        <div class="flex items-center cursor-pointer" onclick="showPage('home')">
+            <!-- 1. Smaller, Sharp Logo -->
+            <img src="https://drive.google.com/thumbnail?id=1veSP1vCbGQp3dJELcBhGwaAbsLiK9d9Q&sz=w500" 
+                 alt="TradingBoard Logo" class="h-6 md:h-7 w-auto object-contain">
+        </div>
+        <div class="flex gap-10 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            <button onclick="showPage('contact')" class="hover:text-white transition uppercase">Contact</button>
+        </div>
+    </nav>
+
+    <!-- Lightbox - 2. Bigger and Sharp logic -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="TradingBoard UI High Definition">
+    </div>
+
+    <!-- HOMEPAGE VIEW -->
+    <div id="home-page" class="page-view active">
+        <header class="page-header px-10 lg:px-24">
+            <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
+                <div class="flex-shrink-0">
+                    <h1 class="hero-h1 mb-8">THE DESKTOP TRAP<br>Ends Here.</h1>
+                    <p class="hero-p mb-12">
+                        TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+                    </p>
+                    <div class="cta-wrapper">
+                        <input type="email" placeholder="Enter your email" class="cta-input">
+                        <button class="bg-white text-black px-10 py-3.5 rounded-full font-bold hover:bg-zinc-200 transition whitespace-nowrap">
+                            Request Early Access
+                        </button>
+                    </div>
+                </div>
+                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[500px]" data-cube="home"></div>
+            </div>
+        </header>
+
+        <main class="relative z-10 px-10 lg:px-24 pb-32 space-y-64 max-w-7xl mx-auto">
+            <!-- a) FalconScript -->
+            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Zero-Friction Migration</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">FalconScript™: Legacy Logic, Modern Speed</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-blue)">
+                    <div class="font-mono text-[11px] text-blue-300 p-10 leading-relaxed w-full">
+                        <span class="text-zinc-600">// Native Strategy Migration</span><br>
+                        <span class="text-blue-400">Inputs:</span> Length(20), StdDev(2);<br>
+                        <span class="text-blue-400">Vars:</span> UpperBand(0);<br><br>
+                        UpperBand = Average(Close, Length) + (StdDev * StdDev(Close, Length));<br><br>
+                        <span class="text-green-400">If</span> Close <span class="text-red-400">crosses over</span> UpperBand <span class="text-green-400">Then</span> Buy next bar;
+                    </div>
+                </div>
+            </section>
+
+            <!-- b) Operationally Lean -->
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-red)] font-bold tracking-widest text-xs uppercase mb-4">Institutional Infrastructure, Zero Maintenance</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Operationally Lean: Reclaim Your Time</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-red)">
+                    <i data-lucide="shield-check" class="w-24 h-24 text-red-500 opacity-80"></i>
+                </div>
+            </section>
+
+            <!-- c) Portfolio-First -->
+            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-yellow)] font-bold tracking-widest text-xs uppercase mb-4">Scale Beyond Single Strategies</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Portfolio-First Architecture</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-yellow)">
+                    <i data-lucide="network" class="w-24 h-24 text-yellow-500 opacity-80"></i>
+                </div>
+            </section>
+
+            <!-- d) AI Co-Pilot -->
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Explainable AI (XAI) for Strategy Design</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Integrated AI Co-Pilot</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-green)">
+                    <i data-lucide="sparkles" class="w-24 h-24 text-green-500 opacity-80"></i>
+                </div>
+            </section>
+
+            <!-- e) Mentor Hub -->
+            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Monetize Your Expertise</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">The Mentor Hub</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-blue)">
+                    <div class="flex items-end gap-5">
+                        <i data-lucide="user" class="w-12 h-12 text-zinc-600"></i>
+                        <i data-lucide="user" class="w-24 h-24 text-blue-500"></i>
+                        <i data-lucide="user" class="w-12 h-12 text-zinc-600"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- f) Collaborative Intelligence -->
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Built for Teams</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Collaborative Intelligence</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Move from solo trading to collaborative alpha. Securely share strategies and execution logs with partners in a cloud-native environment.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-green)">
+                    <div class="grid grid-cols-2 gap-10">
+                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- g) UX: Screenshot -->
+            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+                <div class="flex-1">
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Complex logic. Simple organization.</p>
+                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Revolutionary UX: The "Google Drive" of Alpha</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Stop digging through fragmented folders and desktop files. TradingBoard.ai introduces a familiar, cloud-native interface to manage hundreds of strategies.</p>
+                </div>
+                <div class="feature-box" style="--glow-color: var(--tb-blue)">
+                    <!-- Thumbnail uses sz=w600, Lightbox uses sz=w1600 -->
+                    <div class="relative group" onclick="openLightbox('https://drive.google.com/thumbnail?id=1ybWK-G3jTybeRCSGzy47NqGpYXYS8eVV&sz=w1600')">
+                        <img src="https://drive.google.com/thumbnail?id=1ybWK-G3jTybeRCSGzy47NqGpYXYS8eVV&sz=w600" 
+                             class="ux-screenshot-box rounded-2xl w-80 lg:w-[400px] aspect-video object-cover" 
+                             style="--glow-color: var(--tb-blue); --glow-rgb: 24, 97, 217;">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-2xl pointer-events-none">
+                            <i data-lucide="maximize-2" class="text-white w-10 h-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom CTA -->
+            <section class="reveal py-32 flex flex-col items-center">
+                <div class="cta-wrapper">
+                    <input type="email" placeholder="Enter your email" class="cta-input">
+                    <button class="bg-white text-black px-10 py-3.5 rounded-full font-bold hover:bg-zinc-200 transition whitespace-nowrap">
+                        Request Early Access
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- CONTACT VIEW -->
+    <div id="contact-page" class="page-view">
+        <header class="page-header px-10 lg:px-24">
+            <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
+                <div class="flex-shrink-0">
+                    <h1 class="hero-h1 mb-8">Let’s shape the future<br>of alpha together.</h1>
+                    <p class="hero-p mb-12">
+                        Whether you're a mentor looking to scale, an expert trader, or a potential partner—we're listening.
+                    </p>
+
+                    <form class="space-y-6 max-w-lg mb-10">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="Name" class="form-input">
+                            <input type="email" placeholder="Email" class="form-input">
+                        </div>
+                        <select class="form-input text-zinc-400">
+                            <option>Individual Trader</option>
+                            <option>Trading Mentor</option>
+                            <option>Institutional Partner</option>
+                            <option>Investor</option>
+                        </select>
+                        <textarea placeholder="Message (Optional)" rows="4" class="form-input"></textarea>
+                        <button class="bg-white text-black py-4 px-10 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition">Send Message</button>
+                    </form>
+
+                    <p class="text-zinc-400 text-lg">
+                        Or contact us at<br>
+                        <span class="text-white font-medium">info@tradingboard.ai</span>
+                    </p>
+                </div>
+                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[500px]" data-cube="contact"></div>
+            </div>
+        </header>
+    </div>
+
+    <footer class="py-12 border-t border-zinc-900 text-center text-zinc-600 text-[10px] tracking-[0.3em] uppercase relative z-10">
+        © 2024 TradingBoard.ai | Next-Gen Systematic Alpha
+    </footer>
+
+    <script>
+        // --- ROUTER ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId + '-page').classList.add('active');
+            window.scrollTo(0, 0);
+            handleScroll();
+        }
+
+        // --- LIGHTBOX (2. Logic for bigger/sharp screen) ---
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lb.style.display = 'flex';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        // --- ICONS ---
+        lucide.createIcons();
+
+        // --- SCROLL REVEAL ---
+        function handleScroll() {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        }
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+
+        // --- THREE.JS ENGINE ---
+        const starScene = new THREE.Scene();
+        const starCam = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const starRen = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        starRen.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('star-bg').appendChild(starRen.domElement);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 1800;
+        const starPosArr = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount*3; i++) starPosArr[i] = (Math.random() - 0.5) * 1500;
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPosArr, 3));
+        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.5 }));
+        starScene.add(stars);
+        starCam.position.z = 1;
+
+        function initCube(container) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const lightBlue = new THREE.PointLight(0x1861D9, 8, 12);
+            const lightRed = new THREE.PointLight(0xEB4333, 8, 12);
+            scene.add(lightBlue, lightRed);
+
+            const cube = new THREE.LineSegments(
+                new THREE.EdgesGeometry(new THREE.BoxGeometry(3.3, 3.3, 3.3)),
+                new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 })
+            );
+            scene.add(cube);
+
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            scene.add(ball);
+
+            camera.position.z = 6.5;
+            let bPos = new THREE.Vector3(0,0,0);
+            let bVel = new THREE.Vector3(0.045, 0.055, 0.035);
+
+            return { renderer, scene, camera, cube, ball, bPos, bVel, lightBlue, lightRed, container };
+        }
+
+        const cubes = Array.from(document.querySelectorAll('.cube-container')).map(initCube);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = Date.now() * 0.0015;
+
+            stars.rotation.y += 0.0003;
+            stars.rotation.x += 0.0001;
+            starRen.render(starScene, starCam);
+
+            cubes.forEach(c => {
+                c.cube.rotation.y += 0.006;
+                c.cube.rotation.x += 0.004;
+                c.bPos.add(c.bVel);
+                if(Math.abs(c.bPos.x) > 1.5) c.bVel.x *= -1;
+                if(Math.abs(c.bPos.y) > 1.5) c.bVel.y *= -1;
+                if(Math.abs(c.bPos.z) > 1.5) c.bVel.z *= -1;
+                c.ball.position.copy(c.bPos);
+                c.lightBlue.position.set(Math.sin(t) * 4.5, Math.cos(t) * 4.5, 1);
+                c.lightRed.position.set(Math.cos(t) * 4.5, Math.sin(t) * 4.5, -1);
+                c.renderer.render(c.scene, c.camera);
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            starCam.aspect = window.innerWidth / window.innerHeight;
+            starCam.updateProjectionMatrix();
+            starRen.setSize(window.innerWidth, window.innerHeight);
+            cubes.forEach(c => {
+                c.camera.aspect = c.container.clientWidth / c.container.clientHeight;
+                c.camera.updateProjectionMatrix();
+                c.renderer.setSize(c.container.clientWidth, c.container.clientHeight);
+            });
+        });
+
+        animate();
+    </script>
+</body>
+</html>

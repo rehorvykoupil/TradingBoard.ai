@@ -1,0 +1,16 @@
+Hello! Welcome to TradingBoard.ai!
+
+Basic rules:
+- If you are just starting out, be happy with zero profit :-) Zero is better than a negative loss.
+- When trading, focus on drawdowns first, not profits.
+- Create and optimize strategies on older in-sample data and choose the right strategies for trading on newer out-of-sample data.
+- Every strategy will eventually stop being profitable, and PWFA will ensure that you stop trading according to that strategy and start trading a strategy that has started to be profitable.
+
+6 simple steps to profitable trading:
+1. Create at least 10 strategies based on the template and backtest each of them for at least 3 years until January 1, 2023, on the so-called in-sample data.
+2. If you are satisfied, perform a backtest for at least 1 month with the Bar magnifier switch turned on (one month is enough because it consumes a lot of CPU credits). If the tests with the switch turned on and off are the same, there is a good chance that the strategy will have the same results in live/paper trading as in your backtest. This is crucial for your strategy.
+3. Run the Portfolio Walk Forward Analyzer with the "Use out-of-sample data" option enabled and with the default parameters for the assets you are using (futures, stocks, Eurex, etc.). This means that PWFA will select the right strategies for the upcoming period based on data from January 1, 2023.
+4. Create a portfolio containing the strategies that PWFA has selected for the upcoming period.
+5. Connect to your broker. Make sure you have a real-time data subscription with your broker.
+6. Run your first portfolio on a paper account for at least 3 months before you start trading your money.
+

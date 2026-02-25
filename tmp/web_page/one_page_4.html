@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Future of Algo Trading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #000; color: #fff; margin: 0; }
+        h1, h2, .logo-text, .ai-title, .breadcrumb-text { font-family: 'Google Sans', sans-serif; }
+        .beta-handwriting { font-family: 'Caveat', cursive; }
+
+        /* --- 3D SHINING CUBE ANIMATION --- */
+        .scene {
+            width: 300px; height: 300px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .cube {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 20s linear infinite;
+        }
+
+        @keyframes rotateCube {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 200px; height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(2px);
+            left: 50px; top: 50px;
+        }
+
+        /* Cube Face Positions */
+        .front  { transform: translateZ(100px); }
+        .back   { transform: rotateY(180deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        /* Shining Ball Inside */
+        .ball {
+            position: absolute;
+            width: 60px; height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            left: 120px; top: 120px;
+            transform: translateZ(0);
+            box-shadow: 0 0 60px 20px white, 0 0 100px 40px rgba(24, 110, 251, 0.4);
+            filter: blur(1px);
+        }
+
+        /* Dashboard Styles (Google Drive UI) */
+        .sidebar-item { 
+            display: flex !important; flex-direction: row !important; align-items: center !important;
+            white-space: nowrap !important; height: 40px; padding-left: 12px; cursor: pointer;
+            transition: background-color 0.1s; border-radius: 0 20px 20px 0; width: 92%;
+        }
+        .sidebar-item-active { background-color: #e8f0fe; color: #1967d2; font-weight: 500; }
+        .sidebar-item:hover:not(.sidebar-item-active) { background-color: #f1f3f4; }
+        .triangle-container { width: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .content-height { height: calc(100vh - 64px); }
+        .avatar-circle { border-radius: 50% !important; aspect-ratio: 1 / 1; object-fit: cover; flex-shrink: 0; }
+        .brand-blue-bg { background-color: rgb(24, 110, 251); }
+        .brand-blue-text { color: rgb(24, 110, 251); }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1: ANTI-GRAVITY PROPOSAL -->
+    <section id="landing" class="min-h-screen relative flex items-center justify-between px-20 overflow-hidden bg-[#050505]">
+        <!-- Background Blur -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 blur-[120px] rounded-full"></div>
+
+        <!-- Left Content -->
+        <div class="relative z-10 max-w-2xl">
+            <img src="https://drive.google.com/thumbnail?id=1H0_NyWsJdTzKiug2XnfaH0yJzSLsVhHw&sz=w500" alt="TradingBoard Logo" class="h-16 mb-8">
+            
+            <h1 class="text-7xl font-bold tracking-tighter mb-4 leading-[0.9]">
+                TradingBoard.ai
+            </h1>
+            <h2 class="text-3xl font-light text-blue-400 mb-2">Cloud & AI Platform for Algo Trading</h2>
+            <p class="text-gray-500 tracking-[0.3em] uppercase text-sm mb-12">[MENTOR CENTRIC]</p>
+
+            <div class="flex items-center space-x-6">
+                <button onclick="enterApp()" class="px-10 py-4 brand-blue-bg text-white rounded-full font-bold text-lg shadow-[0_0_50px_rgba(24,110,251,0.3)] hover:scale-105 transition-transform">
+                    Enter Dashboard
+                </button>
+                <div class="bg-green-600 px-4 py-2 rounded text-sm font-bold tracking-wide">
+                    INTRODUCTION & MARKET VALIDATION
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content: The Shining 3D Cube -->
+        <div class="relative z-10 pr-20">
+            <div class="scene">
+                <div class="cube">
+                    <div class="cube-face front"></div>
+                    <div class="cube-face back"></div>
+                    <div class="cube-face left"></div>
+                    <div class="cube-face right"></div>
+                    <div class="cube-face top"></div>
+                    <div class="cube-face bottom"></div>
+                    <div class="ball"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: DASHBOARD (Google Drive Clone) -->
+    <div id="dashboard" class="hidden h-screen flex flex-col bg-white text-gray-700">
+        <!-- HEADER -->
+        <header class="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-white z-10 flex-shrink-0">
+            <div class="flex items-center w-[340px] flex-shrink-0">
+                <img src="https://drive.google.com/thumbnail?id=1H0_NyWsJdTzKiug2XnfaH0yJzSLsVhHw&sz=w200" alt="Logo" class="h-10 w-10 object-contain mr-2">
+                <span class="text-xl logo-text text-[#5f6368] font-bold whitespace-nowrap">TradingBoard.ai</span>
+                <span class="ml-2 brand-blue-text text-[20px] beta-handwriting relative -top-2.5 transform rotate-[-3deg]">Beta</span>
+            </div>
+
+            <div class="flex-1 flex justify-center px-8">
+                <div class="max-w-3xl w-full flex items-center bg-[#f1f3f4] px-4 py-2 rounded-lg focus-within:bg-white focus-within:shadow-md transition-all">
+                    <i data-lucide="search" class="text-gray-500 mr-4 w-5 h-5 flex-shrink-0"></i>
+                    <input type="text" placeholder="Search in Strategies, Portfolios, Signals, Functions, Indicators, ..." class="bg-transparent border-none outline-none w-full text-gray-700 text-base">
+                    <i data-lucide="sliders-horizontal" class="text-gray-500 ml-4 w-5 h-5 flex-shrink-0 cursor-pointer"></i>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-1 ml-4 flex-shrink-0 text-gray-600">
+                <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer"><i data-lucide="sparkles" class="w-6 h-6"></i></div>
+                <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer"><i data-lucide="help-circle" class="w-6 h-6"></i></div>
+                <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer"><i data-lucide="settings" class="w-6 h-6"></i></div>
+                <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&q=80" alt="me" class="h-9 w-9 avatar-circle ml-2">
+            </div>
+        </header>
+
+        <div class="flex content-height">
+            <!-- SIDEBAR -->
+            <aside class="w-64 flex flex-col pt-4 bg-white h-full border-r border-gray-100 flex-shrink-0 overflow-hidden">
+                <button class="flex items-center ml-4 px-5 py-3 mb-4 bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-shadow w-fit flex-shrink-0">
+                    <i data-lucide="plus" class="text-blue-600 mr-3 w-8 h-8 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">New</span>
+                </button>
+
+                <nav class="flex-1 overflow-y-auto overflow-x-hidden px-1">
+                    <div class="sidebar-item"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i></div><i data-lucide="line-chart" class="mr-3 w-5 h-5"></i><span class="text-sm">Strategies</span></div>
+                    <div class="sidebar-item sidebar-item-active"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-blue-600"></i></div><i data-lucide="area-chart" class="mr-3 w-5 h-5"></i><span class="text-sm">Portfolios</span></div>
+                    <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="radio" class="mr-3 w-5 h-5 text-gray-600"></i><span class="text-sm">Portfolios - <span class="text-red-600 font-medium uppercase tracking-tighter">Live</span></span></div>
+                    <div class="my-2 mx-6 border-t border-gray-200"></div>
+                    <div class="sidebar-item"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i></div><i data-lucide="code-2" class="mr-3 w-5 h-5"></i><span class="text-sm">Signals</span></div>
+                    <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="step-forward" class="mr-3 w-5 h-5 text-gray-600"></i><span class="text-sm">PWFA</span></div>
+                    <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="landmark" class="mr-3 w-5 h-5 text-gray-600"></i><span class="text-sm">Brokers</span></div>
+                </nav>
+
+                <div class="px-6 py-4 border-t border-gray-100 flex-shrink-0 bg-white">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-sm text-gray-700">Storage</span>
+                        <button class="brand-blue-bg text-white text-[10px] px-2 py-0.5 rounded">Buy</button>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1"><div class="brand-blue-bg h-1 rounded-full w-[90.5%]"></div></div>
+                    <p class="text-[12px] text-gray-500 mt-1">181MB of 200MB used</p>
+                </div>
+            </aside>
+
+            <!-- MAIN LIST -->
+            <main class="flex-1 flex flex-col min-w-0 bg-white overflow-hidden border-r border-gray-100">
+                <div class="px-6 pt-5 pb-2 flex-shrink-0">
+                    <div class="flex items-center space-x-1 breadcrumb-text text-lg text-gray-700 mb-4">
+                        <span>Portfolios</span> <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                        <span class="font-medium text-gray-800">Trend Portfolio 133</span> <i data-lucide="chevron-down" class="ml-1 w-5 h-5 text-gray-500"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 pb-4">
+                        <button class="filter-chip">Type <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                        <button class="filter-chip">Modified <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto px-6">
+                    <table class="w-full text-left border-collapse table-fixed">
+                        <thead class="sticky top-0 bg-white z-10 border-b border-gray-200">
+                            <tr class="text-xs text-gray-500 uppercase tracking-wider">
+                                <th class="py-3 w-2/5 font-medium">Name</th>
+                                <th class="py-3 w-1/4 font-medium">Owner</th>
+                                <th class="py-3 font-medium">Modified</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-600">
+                            <tr class="border-b border-blue-100 bg-blue-50 cursor-pointer hover:bg-blue-50">
+                                <td class="py-4 truncate flex items-center font-medium text-blue-700"><i data-lucide="line-chart" class="text-blue-500 mr-3 w-4 h-4"></i>ES_15m_TrendFollowing_BreakOut_3</td>
+                                <td><div class="flex items-center"><img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&q=80" class="h-6 w-6 avatar-circle mr-2">me</div></td>
+                                <td>Jan 19, 2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            <!-- INFO PANEL -->
+            <aside class="w-[300px] flex flex-col h-full bg-white flex-shrink-0 overflow-hidden border-l border-gray-100">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center"><span class="text-sm font-medium uppercase tracking-tighter text-gray-500">Details</span><i data-lucide="x" class="w-5 h-5 text-gray-400 cursor-pointer"></i></div>
+                <div class="p-5 overflow-y-auto flex-1">
+                    <p class="text-[13px] font-medium text-gray-900 mb-2 font-bold">Equity Curve</p>
+                    <div class="h-28 mb-4"><canvas id="equityChart"></canvas></div>
+                    <div class="border-t pt-3 mb-4">
+                        <p class="text-[12px] font-bold text-gray-400 uppercase mb-3">Strategy Metrics</p>
+                        <div class="grid grid-cols-2 gap-x-3">
+                            <div><p class="info-label">Net Profit</p><p class="info-value text-green-600">+$14,883</p></div>
+                            <div><p class="info-label">Sharpe</p><p class="info-value">1.85</p></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function enterApp() {
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            renderChart();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('equityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2022', '', '', '', '2023', '', '', '', '2024'],
+                    datasets: [{ data: [10000, 11500, 10200, 14000, 15500, 18200, 17500, 22000, 24883], borderColor: '#1a73e8', backgroundColor: 'rgba(26, 115, 232, 0.04)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: true, grid: { display: false }, ticks: { font: { size: 10 } } }, y: { position: 'right', ticks: { font: { size: 9 } } } } }
+            });
+        }
+    </script>
+</body>
+</html>

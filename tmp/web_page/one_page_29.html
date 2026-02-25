@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tb-blue: #1861D9;
+            --tb-red: #EB4333;
+            --tb-yellow: #FACD22;
+            --tb-green: #29B25E;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Grayscale Hero Text */
+        .hero-title {
+            background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+        }
+
+        /* Feature Box Styling */
+        .shining-box {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 16 / 10;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s ease;
+        }
+
+        .shining-box:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .shining-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--box-color) 0%, transparent 70%);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* CTA Input Style */
+        .cta-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .cta-input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #star-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-6">
+        <img src="https://drive.usercontent.com/u/0/uc?id=1P7rashXqbDSALuio45iOcqd91yGEYqvi" alt="TradingBoard" class="h-8 w-auto">
+        <div class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="#" class="hover:text-white transition">Platform</a>
+            <a href="#" class="hover:text-white transition">FalconScript</a>
+            <a href="#" class="hover:text-white transition">Pricing</a>
+        </div>
+    </nav>
+
+    <!-- Background Stars -->
+    <div id="star-background"></div>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center pt-20 px-8 lg:px-24">
+        <div class="z-10 w-full grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="hero-title text-6xl lg:text-8xl mb-8">
+                    THE DESKTOP TRAP<br>Ends Here.
+                </h1>
+                <p class="text-zinc-400 text-lg lg:text-xl max-w-xl mb-12 leading-relaxed">
+                    TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+                </p>
+                
+                <div class="cta-container">
+                    <input type="email" placeholder="Enter your email" class="cta-input">
+                    <button class="bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-zinc-200 transition whitespace-nowrap">
+                        Request Early Access
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Cube Container -->
+            <div id="cube-container" class="h-[500px] lg:h-[700px] w-full"></div>
+        </div>
+    </header>
+
+    <!-- Content Sections -->
+    <main class="relative z-10 px-8 lg:px-24 py-32 space-y-48 max-w-7xl mx-auto">
+
+        <!-- a) FalconScript -->
+        <section class="flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-blue-500 font-bold tracking-widest text-xs uppercase mb-4">Zero-Friction Migration</p>
+                <h2 class="text-4xl font-medium mb-6">FalconScript™: Legacy Logic, Modern Speed</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-blue)">
+                <div class="font-mono text-[10px] text-zinc-300 p-8 leading-relaxed w-full">
+                    <span class="text-blue-400">Inputs:</span> Length(20), StdDev(2);<br>
+                    <span class="text-blue-400">Vars:</span> UpperBand(0), LowerBand(0);<br><br>
+                    UpperBand = Average(Close, Length) + (StdDev * StdDev(Close, Length));<br>
+                    LowerBand = Average(Close, Length) - (StdDev * StdDev(Close, Length));<br><br>
+                    <span class="text-green-400">If</span> Close <span class="text-red-400">crosses over</span> UpperBand <span class="text-green-400">Then</span> Buy next bar at Market;
+                </div>
+            </div>
+        </section>
+
+        <!-- b) Operationally Lean -->
+        <section class="flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-red-500 font-bold tracking-widest text-xs uppercase mb-4">Institutional Infrastructure, Zero Maintenance</p>
+                <h2 class="text-4xl font-medium mb-6">Operationally Lean: Reclaim Your Time</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-red)">
+                <i data-lucide="shield-check" class="w-20 h-20 text-red-500"></i>
+            </div>
+        </section>
+
+        <!-- c) Portfolio-First Architecture -->
+        <section class="flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-yellow-500 font-bold tracking-widest text-xs uppercase mb-4">Scale Beyond Single Strategies</p>
+                <h2 class="text-4xl font-medium mb-6">Portfolio-First Architecture</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-yellow)">
+                <i data-lucide="git-branch" class="w-20 h-20 text-yellow-500"></i>
+            </div>
+        </section>
+
+        <!-- d) Integrated AI Co-Pilot -->
+        <section class="flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-green-500 font-bold tracking-widest text-xs uppercase mb-4">Explainable AI (XAI) for Strategy Design</p>
+                <h2 class="text-4xl font-medium mb-6">Integrated AI Co-Pilot</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-green)">
+                <i data-lucide="sparkles" class="w-20 h-20 text-green-500"></i>
+            </div>
+        </section>
+
+        <!-- e) Mentor Hub -->
+        <section class="flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-blue-500 font-bold tracking-widest text-xs uppercase mb-4">Monetize Your Expertise</p>
+                <h2 class="text-4xl font-medium mb-6">The Mentor Hub</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-blue)">
+                <div class="flex items-end gap-3">
+                    <i data-lucide="user" class="w-10 h-10 text-zinc-500"></i>
+                    <i data-lucide="user" class="w-16 h-16 text-blue-500"></i>
+                    <i data-lucide="user" class="w-10 h-10 text-zinc-500"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- f) Collaborative Intelligence -->
+        <section class="flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-green-500 font-bold tracking-widest text-xs uppercase mb-4">Built for Teams</p>
+                <h2 class="text-4xl font-medium mb-6">Collaborative Intelligence</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.</p>
+            </div>
+            <div class="shining-box" style="--box-color: var(--tb-green)">
+                <div class="grid grid-cols-2 gap-4">
+                    <i data-lucide="user" class="w-10 h-10 text-green-500"></i>
+                    <i data-lucide="user" class="w-10 h-10 text-green-500"></i>
+                    <i data-lucide="user" class="w-10 h-10 text-green-500"></i>
+                    <i data-lucide="user" class="w-10 h-10 text-green-500"></i>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-20 border-t border-zinc-900 text-center">
+        <p class="text-zinc-500 text-sm">© 2024 TradingBoard.ai. Built for systematic alpha.</p>
+    </footer>
+
+    <script>
+        // --- LUCIDE ICONS ---
+        lucide.createIcons();
+
+        // --- THREE.JS STARFIELD (Background) ---
+        const starScene = new THREE.Scene();
+        const starCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const starRenderer = new THREE.WebGLRenderer({ alpha: true });
+        starRenderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('star-background').appendChild(starRenderer.domElement);
+
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.7, transparent: true, opacity: 0.8 });
+
+        const starVertices = [];
+        for (let i = 0; i < 2000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
+        }
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        starScene.add(stars);
+        starCamera.position.z = 1;
+
+        // --- THREE.JS CUBE & BALL (Hero) ---
+        const container = document.getElementById('cube-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        // Cube
+        const geometry = new THREE.BoxGeometry(3, 3, 3);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+        const cube = new THREE.LineSegments(edges, lineMaterial);
+        scene.add(cube);
+
+        // Bouncing Ball
+        const ballGeo = new THREE.SphereGeometry(0.12, 32, 32);
+        const ballMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const ball = new THREE.Mesh(ballGeo, ballMat);
+        scene.add(ball);
+
+        // Shine Lights (Blue and Red highlights)
+        const blueLight = new THREE.PointLight(0x1861D9, 2, 10);
+        const redLight = new THREE.PointLight(0xEB4333, 2, 10);
+        scene.add(blueLight);
+        scene.add(redLight);
+
+        camera.position.z = 6;
+
+        let ballPos = new THREE.Vector3(0, 0, 0);
+        let ballVel = new THREE.Vector3(0.04, 0.05, 0.03);
+        const bound = 1.4;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Move Background Stars
+            stars.rotation.y += 0.0002;
+            stars.rotation.x += 0.0001;
+            starRenderer.render(starScene, starCamera);
+
+            // Rotate Cube
+            cube.rotation.x += 0.005;
+            cube.rotation.y += 0.005;
+
+            // Ball Physics
+            ballPos.add(ballVel);
+            if (Math.abs(ballPos.x) > bound) ballVel.x *= -1;
+            if (Math.abs(ballPos.y) > bound) ballVel.y *= -1;
+            if (Math.abs(ballPos.z) > bound) ballVel.z *= -1;
+            ball.position.copy(ballPos);
+
+            // Orbit lights to create "shining" effect on lines
+            const time = Date.now() * 0.002;
+            blueLight.position.set(Math.sin(time) * 4, Math.cos(time) * 4, 0);
+            redLight.position.set(Math.cos(time) * 4, Math.sin(time) * 4, 2);
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            starCamera.aspect = window.innerWidth / window.innerHeight;
+            starCamera.updateProjectionMatrix();
+            starRenderer.setSize(window.innerWidth, window.innerHeight);
+
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

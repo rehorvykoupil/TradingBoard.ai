@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-blue: rgb(24, 97, 217);
+            --brand-red: rgb(235, 67, 51);
+            --brand-yellow: rgb(250, 205, 34);
+            --brand-green: rgb(41, 178, 94);
+            --bg-black: #000000;
+            --text-gray: #9aa0a6;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-black);
+            color: #ffffff;
+            font-family: 'Inter', 'Google Sans', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            position: relative;
+        }
+
+        /* Recreating the logo icon with White Bars */
+        .logo-bar { background: #ffffff; border-radius: 1px; width: 6px; }
+        .bar-1 { height: 40%; }
+        .bar-2 { height: 70%; }
+        .bar-3 { height: 100%; }
+        .logo-arrow {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-top: 3px solid var(--brand-red);
+            border-right: 3px solid var(--brand-red);
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .logo-text {
+            font-family: 'Google Sans', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+            position: relative;
+        }
+
+        .hero-left {
+            flex: 1.2;
+            z-index: 10;
+        }
+
+        .hero-right {
+            flex: 0.8;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 5vw, 5.5rem);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -3px;
+            margin-bottom: 24px;
+            background: linear-gradient(to bottom, #fff 60%, rgba(255,255,255,0.3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            max-width: 550px;
+            margin-bottom: 45px;
+            font-weight: 300;
+        }
+
+        /* --- CTA Box --- */
+        .cta-container {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 8px;
+            border-radius: 100px;
+            width: fit-content;
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-container input {
+            background: transparent;
+            border: none;
+            padding: 0 25px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            width: 280px;
+        }
+
+        .cta-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background: var(--brand-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* --- Cube Canvas --- */
+        #cube-canvas {
+            width: 100%;
+            height: 600px;
+        }
+
+        /* --- Feature Sections --- */
+        .features { padding: 100px 10%; }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 120px;
+            align-items: center;
+            margin-bottom: 200px;
+        }
+
+        .feature-row.reverse { direction: rtl; }
+        .feature-row.reverse .text-content { direction: ltr; }
+
+        .caption {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        h2 { font-size: 2.8rem; font-weight: 400; margin-bottom: 25px; letter-spacing: -1px; }
+
+        .copy { color: var(--text-gray); font-size: 1.15rem; line-height: 1.7; }
+
+        /* Abstract Visuals */
+        .visual-box {
+            aspect-ratio: 1.4;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow {
+            position: absolute;
+            width: 300px; height: 300px;
+            filter: blur(100px);
+            opacity: 0.15;
+            border-radius: 50%;
+        }
+
+        footer {
+            padding: 80px 10%;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .hero { flex-direction: column; text-align: center; height: auto; padding-top: 150px; }
+            .hero-left { display: flex; flex-direction: column; align-items: center; }
+            .feature-row, .feature-row.reverse { grid-template-columns: 1fr; gap: 60px; text-align: center; }
+            .cta-container { width: 100%; max-width: 450px; }
+            .cta-container input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <div class="logo-bar bar-1"></div>
+                <div class="logo-bar bar-2"></div>
+                <div class="logo-bar bar-3"></div>
+                <div class="logo-arrow"></div>
+            </div>
+            <span class="logo-text">TradingBoard.ai</span>
+        </a>
+        <div style="display: flex; gap: 30px; font-size: 0.9rem; color: #888;">
+            <a href="#" style="color: inherit; text-decoration: none;">Features</a>
+            <a href="#" style="color: inherit; text-decoration: none;">Pricing</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-left">
+            <h1>THE DESKTOP TRAP <br>Ends Here.</h1>
+            <p class="hero-sub">
+                TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+            </p>
+            <div class="cta-container">
+                <input type="email" placeholder="Enter your email">
+                <button class="cta-btn">Request Early Access</button>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div id="cube-canvas"></div>
+        </div>
+    </header>
+
+    <main class="features">
+        <!-- Section A -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue)">Zero-Friction Migration.</span>
+                <h2>FalconScript™: <br>Legacy Logic, Modern Speed</h2>
+                <p class="copy">Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-blue); top: 0; left: 0;"></div>
+                <div style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--brand-blue); opacity: 0.6;">
+                    if (Close > Average(Close, 20)) <br> &nbsp;&nbsp; Buy next bar;
+                </div>
+            </div>
+        </div>
+
+        <!-- Section B -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red)">Institutional Infrastructure.</span>
+                <h2>Operationally Lean: <br>Reclaim Your Time</h2>
+                <p class="copy">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-red); bottom: 0; right: 0;"></div>
+                <i data-lucide="shield-check" style="width: 80px; height: 80px; color: var(--brand-red); opacity: 0.5;"></i>
+            </div>
+        </div>
+
+        <!-- Section C -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-yellow)">Scale Beyond Single Strategies.</span>
+                <h2>Portfolio-First Architecture</h2>
+                <p class="copy">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-yellow); top: 20%; left: 20%;"></div>
+                <div style="display: grid; grid-template-columns: repeat(3, 30px); gap: 10px;">
+                    <div style="height: 30px; border: 1px solid var(--brand-yellow); border-radius: 4px;"></div>
+                    <div style="height: 30px; background: var(--brand-yellow); border-radius: 4px;"></div>
+                    <div style="height: 30px; border: 1px solid var(--brand-yellow); border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section D -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-green)">Explainable AI (XAI).</span>
+                <h2>Integrated AI Co-Pilot</h2>
+                <p class="copy">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-green); top: 10%; right: 10%;"></div>
+                <i data-lucide="sparkles" style="width: 100px; height: 100px; color: var(--brand-green); opacity: 0.4;"></i>
+            </div>
+        </div>
+
+        <!-- Section E -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue)">Monetize Your Expertise.</span>
+                <h2>The Mentor Hub</h2>
+                <p class="copy">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-blue); bottom: 10%; right: 10%;"></div>
+                <i data-lucide="users" style="width: 80px; height: 80px; color: var(--brand-blue); opacity: 0.5;"></i>
+            </div>
+        </div>
+
+        <!-- Section F -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red)">Built for Teams.</span>
+                <h2>Collaborative Intelligence</h2>
+                <p class="copy">Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.</p>
+            </div>
+            <div class="visual-box">
+                <div class="glow" style="background: var(--brand-red); opacity: 0.1;"></div>
+                <div style="display: flex; gap: -20px;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #222; border: 1px solid white;"></div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--brand-red); border: 1px solid white;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 TradingBoard.ai. All rights reserved.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Three.js Shining Rotating Cube ---
+        const container = document.getElementById('cube-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Geometry
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        
+        // Wireframe (External)
+        const wireMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.2 
+        });
+        const wireframe = new THREE.Mesh(geometry, wireMaterial);
+        scene.add(wireframe);
+
+        // Core Glowing Cube
+        const coreMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x1861d9, // Brand Blue
+            metalness: 0.9,
+            roughness: 0.1,
+            transparent: true,
+            opacity: 0.4,
+            transmission: 0.5
+        });
+        const core = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.9, 1.9), coreMaterial);
+        scene.add(core);
+
+        // Lights
+        const pLight = new THREE.PointLight(0xffffff, 2, 10);
+        pLight.position.set(5, 5, 5);
+        scene.add(pLight);
+
+        const bLight = new THREE.PointLight(0x1861d9, 3, 10);
+        bLight.position.set(-5, -5, 5);
+        scene.add(bLight);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            wireframe.rotation.x += 0.003;
+            wireframe.rotation.y += 0.005;
+            core.rotation.x += 0.003;
+            core.rotation.y += 0.005;
+
+            // Shining Pulse
+            const time = Date.now() * 0.001;
+            core.scale.setScalar(1 + Math.sin(time) * 0.05);
+            
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

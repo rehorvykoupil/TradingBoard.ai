@@ -1,0 +1,27 @@
+# Firebase (cache only; keep .firebaserc and firebase.json)
+.firebase/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+
+# Node (if you add tooling later)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Optional: uncomment to ignore local temp/spec drafts
+# tmp/
+# spec/

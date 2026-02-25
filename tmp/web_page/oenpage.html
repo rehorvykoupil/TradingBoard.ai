@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | Escaping the Desktop Trap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .neon-text { text-shadow: 0 0 15px rgba(24, 96, 222, 0.8); }
+        .gradient-border { position: relative; border-radius: 1.5rem; background: linear-gradient(90deg, #34A853, #FBBC05, #EA4335, #1860DE); padding: 1px; }
+        .inner-content { background: #050a14; border-radius: 1.5rem; height: 100%; width: 100%; }
+        input:focus { border-color: #1860DE; box-shadow: 0 0 10px rgba(24, 96, 222, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- Main Navigation -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 py-6">
+        <div class="flex items-center space-x-2">
+            <div class="flex items-end space-x-1">
+                <div class="w-1.5 h-4 bg-[#34A853]"></div>
+                <div class="w-1.5 h-6 bg-[#FBBC05]"></div>
+                <div class="w-1.5 h-8 bg-[#EA4335]"></div>
+            </div>
+            <span class="text-2xl font-bold tracking-tight uppercase">TradingBoard<span class="text-[#1860DE]">.ai</span></span>
+        </div>
+        <div class="hidden lg:flex space-x-12 text-sm font-light uppercase tracking-widest text-gray-400">
+            <a href="#" class="hover:text-white transition">Agentic AI</a>
+            <a href="#" class="hover:text-white transition">Mentor Hub</a>
+            <a href="#" class="hover:text-white transition">PWFA Core</a>
+        </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <main class="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-32 text-center">
+        <div class="inline-block px-4 py-1.5 rounded-full glass-panel text-[10px] font-bold tracking-[0.3em] text-[#1860DE] mb-6 uppercase">
+            Institutional Infrastructure for the Solo Alpha
+        </div>
+        
+        <h1 class="text-6xl md:text-9xl font-bold mb-8 leading-none tracking-tighter">
+            THE DESKTOP TRAP <br/> 
+            <span class="text-[#1860DE] neon-text">ENDS HERE.</span>
+        </h1>
+
+        <p class="max-w-2xl text-xl md:text-2xl text-gray-400 font-light mb-16 leading-relaxed">
+            TradingBoard.ai is a <strong>modern cloud environment</strong> that unifies design, testing, and 24/7 automation. Built for the next generation of <strong>systematic alpha</strong>. [1, 5]
+        </p>
+
+        <!-- Registration Box -->
+        <div class="gradient-border w-full max-w-lg mb-32">
+            <div class="inner-content p-10">
+                <h3 class="text-2xl font-bold mb-2">Join the Beachhead Pilot</h3>
+                <p class="text-sm text-gray-500 mb-8 uppercase tracking-widest">Only 10 Expert Slots Available [6]</p>
+                <form class="space-y-4">
+                    <input type="email" placeholder="Your Institutional Email" class="w-full bg-black/50 border border-gray-800 rounded-xl px-6 py-4 focus:outline-none transition text-center">
+                    <button class="w-full bg-[#1860DE] hover:bg-blue-600 text-white py-5 rounded-xl font-bold text-lg shadow-2xl transition-all transform hover:scale-[1.01]">
+                        REQUEST ACCESS
+                    </button>
+                </form>
+                <div class="mt-6 flex justify-center space-x-6 grayscale opacity-40">
+                    <span class="text-[10px] border border-white px-2 py-1">EASY LANGUAGE COMPATIBLE</span>
+                    <span class="text-[10px] border border-white px-2 py-1">AGENTIC EXECUTION</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 3D Animation Script -->
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Materials using your logo colors
+        const materials = [
+            new THREE.MeshBasicMaterial({ color: 0x1860DE, wireframe: true, transparent: true, opacity: 0.8 }), // Blue
+            new THREE.MeshBasicMaterial({ color: 0x34A853, wireframe: true, transparent: true, opacity: 0.8 }), // Green
+            new THREE.MeshBasicMaterial({ color: 0xFBBC05, wireframe: true, transparent: true, opacity: 0.8 }), // Yellow
+            new THREE.MeshBasicMaterial({ color: 0xEA4335, wireframe: true, transparent: true, opacity: 0.8 }), // Red
+            new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.3 }), // White
+            new THREE.MeshBasicMaterial({ color: 0x1860DE, wireframe: true, transparent: true, opacity: 0.8 })  // Blue
+        ];
+
+        const geometry = new THREE.BoxGeometry(3, 3, 3, 5, 5, 5);
+        const cube = new THREE.Mesh(geometry, materials);
+        scene.add(cube);
+
+        // Core "Distributed Center" Sphere
+        const coreGeo = new THREE.SphereGeometry(0.8, 32, 32);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x1860DE });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.003;
+            cube.rotation.y += 0.005;
+            core.scale.x = 1 + Math.sin(Date.now() * 0.002) * 0.1;
+            core.scale.y = 1 + Math.sin(Date.now() * 0.002) * 0.1;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+
+    <!-- Footer -->
+    <footer class="relative z-10 py-10 text-center border-t border-gray-900">
+        <p class="text-[10px] text-gray-600 tracking-[0.5em] uppercase">
+            Amsterdam HQ | Moravian Technologies, s.r.o. | Founder: Rehor Vykoupil [7, 8]
+        </p>
+    </footer>
+</body>
+</html>

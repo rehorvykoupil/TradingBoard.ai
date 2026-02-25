@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        h1, .logo-text, .ai-title, .breadcrumb-text { font-family: 'Google Sans', sans-serif; }
+        .beta-handwriting, .help-handwriting { font-family: 'Caveat', cursive; }
+
+        .sidebar-item { 
+            display: flex !important; flex-direction: row !important; align-items: center !important;
+            white-space: nowrap !important; height: 40px; padding-left: 12px; cursor: pointer;
+            transition: background-color 0.1s; border-radius: 0 20px 20px 0; width: 92%;
+        }
+        .sidebar-item-active { background-color: #e8f0fe; color: #1967d2; font-weight: 500; }
+        .sidebar-item:hover:not(.sidebar-item-active) { background-color: #f1f3f4; }
+        
+        .triangle-container { width: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .menu-icon { margin-right: 12px; flex-shrink: 0; }
+
+        .filter-chip { 
+            display: inline-flex !important; flex-direction: row !important; align-items: center !important;
+            white-space: nowrap !important; @apply px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex-shrink-0; 
+        }
+        
+        .content-height { height: calc(100vh - 64px); }
+        .info-label { font-size: 10px; color: #5f6368; font-weight: 400; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 0.01rem; }
+        .info-value { font-size: 12px; color: #202124; font-weight: 400; margin-bottom: 8px; line-height: 1.25; }
+        
+        .avatar-circle { border-radius: 50% !important; aspect-ratio: 1 / 1; object-fit: cover; flex-shrink: 0; }
+        .info-scroll::-webkit-scrollbar { width: 8px; }
+        .info-scroll::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; border: 2px solid white; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .brand-blue-bg { background-color: rgb(24, 110, 251); }
+        .brand-blue-text { color: rgb(24, 110, 251); }
+        .ai-chat-text { font-size: 13px; color: #3c4043; line-height: 1.6; }
+        .buy-btn-visible { background-color: rgb(24, 110, 251); color: white; font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 4px; flex-shrink: 0; }
+    
+        /* Help Overlay Layout */
+        #helpOverlay { transition: opacity 0.3s ease-out; }
+        .help-dialog { max-width: 1200px; width: 95%; margin: auto; }
+    </style>
+</head>
+<body class="bg-white text-gray-700 h-screen overflow-hidden">
+
+    <!-- HELP DIALOG OVERLAY -->
+    <div id="helpOverlay" class="fixed inset-0 z-[100] bg-black/85 flex flex-col items-center justify-center p-6">
+        <div class="help-dialog relative text-white help-handwriting">
+            <!-- Close Button -->
+            <button onclick="closeHelp()" class="absolute -top-6 -right-6 p-2 hover:opacity-70 transition-opacity">
+                <i data-lucide="x" class="w-12 h-12 text-white"></i>
+            </button>
+
+            <div class="w-full">
+                <p class="text-5xl mb-8 text-center">Hello! Welcome to TradingBoard.ai!</p>
+                
+                <div class="grid grid-cols-2 gap-16 w-full items-start">
+                    <!-- Column 1: Basic Rules -->
+                    <div class="space-y-4">
+                        <p class="text-3xl underline mb-2 text-blue-400">Basic rules:</p>
+                        <ul class="space-y-4 ml-6 list-disc text-[23px] leading-snug">
+                            <li>If you are just starting out, be happy with zero profit :-) Zero is better than a negative loss.</li>
+                            <li>When trading, focus on drawdowns first, not profits.</li>
+                            <li>Create and optimize strategies on older in-sample data and choose the right strategies for trading on newer out-of-sample data.</li>
+                            <li>Every strategy will eventually stop being profitable, and PWFA will ensure that you stop trading according to that strategy and start trading a strategy that has started to be profitable.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 2: 6 Simple Steps (In one sequence) -->
+                    <div class="space-y-4 border-l border-white/20 pl-10">
+                        <p class="text-3xl underline mb-2 text-blue-400">6 simple steps to profitable trading:</p>
+                        <ol class="space-y-4 ml-8 list-decimal text-[23px] leading-tight">
+                            <li>Create at least 10 strategies based on the template and backtest each of them for at least 3 years until January 1, 2023, on the so-called in-sample data.</li>
+                            <li>If you are satisfied, perform a backtest for at least 1 month with the Bar magnifier switch turned on (one month is enough because it consumes a lot of CPU credits). If the tests with the switch turned on and off are the same, there is a good chance that the strategy will have the same results in live/paper trading as in your backtest. This is crucial for your strategy.</li>
+                            <li>Run the Portfolio Walk Forward Analyzer with the "Use out-of-sample data" option enabled and with the default parameters for the assets you are using (futures, stocks, Eurex, etc.). This means that PWFA will select the right strategies for the upcoming period based on data from January 1, 2023.</li>
+                            <li>Create a portfolio containing the strategies that PWFA has selected for the upcoming period.</li>
+                            <li>Connect to your broker. Make sure you have a real-time data subscription with your broker.</li>
+                            <li>Run your first portfolio on a paper account for at least 3 months before you start trading your money.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex items-center space-x-4 w-full justify-start">
+                    <input type="checkbox" id="dontShow" class="w-7 h-7 cursor-pointer accent-blue-500">
+                    <label for="dontShow" class="text-3xl cursor-pointer select-none">Don't show it next time.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-white z-10 flex-shrink-0">
+        <div class="flex items-center w-[340px] flex-shrink-0">
+            <img src="https://drive.google.com/thumbnail?id=1H0_NyWsJdTzKiug2XnfaH0yJzSLsVhHw&sz=w200" alt="Logo" class="h-10 w-10 object-contain mr-2">
+            <span class="text-xl logo-text text-[#5f6368] font-bold whitespace-nowrap">TradingBoard.ai</span>
+            <span class="ml-2 brand-blue-text text-[20px] beta-handwriting relative -top-2.5 transform rotate-[-3deg]">Beta</span>
+        </div>
+
+        <div class="flex-1 flex justify-center px-8">
+            <div class="max-w-3xl w-full flex items-center bg-[#f1f3f4] px-4 py-2 rounded-lg focus-within:bg-white focus-within:shadow-md transition-all">
+                <i data-lucide="search" class="text-gray-500 mr-4 w-5 h-5 flex-shrink-0"></i>
+                <input type="text" placeholder="Search in Strategies, Portfolios, Signals, Functions, Indicators, ..." class="bg-transparent border-none outline-none w-full text-gray-700 text-base">
+                <i data-lucide="sliders-horizontal" class="text-gray-500 ml-4 w-5 h-5 flex-shrink-0 cursor-pointer"></i>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-1 ml-4 flex-shrink-0">
+            <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer" title="AI Assistant"><i data-lucide="sparkles" class="w-6 h-6 text-gray-600"></i></div>
+            <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer" title="Help"><i data-lucide="help-circle" class="w-6 h-6 text-gray-600"></i></div>
+            <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer" title="Settings"><i data-lucide="settings" class="w-6 h-6 text-gray-600"></i></div>
+            <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&q=80" alt="me" class="h-9 w-9 avatar-circle ml-2">
+        </div>
+    </header>
+
+    <div class="flex content-height">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 flex flex-col pt-4 bg-white h-full border-r border-gray-100 flex-shrink-0 overflow-hidden">
+            <button class="flex items-center ml-4 px-5 py-3 mb-4 bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-shadow w-fit flex-shrink-0">
+                <i data-lucide="plus" class="text-blue-600 mr-3 w-8 h-8 flex-shrink-0"></i>
+                <span class="text-sm font-medium">New</span>
+            </button>
+
+            <nav class="flex-1 overflow-y-auto overflow-x-hidden">
+                <div class="sidebar-item sidebar-item-active"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-blue-600"></i></div><i data-lucide="line-chart" class="menu-icon w-5 h-5"></i><span class="text-sm">Strategies</span></div>
+                <div class="sidebar-item"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i></div><i data-lucide="area-chart" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Portfolios</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="radio" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Portfolios - <span class="text-red-600 font-medium uppercase tracking-tighter">Live</span></span></div>
+                <div class="my-2 mx-6 border-t border-gray-200"></div>
+                <div class="sidebar-item"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i></div><i data-lucide="code-2" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Signals</span></div>
+                <div class="sidebar-item"><div class="triangle-container"><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i></div><i data-lucide="variable" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Functions</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="activity" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Indicators</span></div>
+                <div class="my-2 mx-6 border-t border-gray-200"></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="candlestick-chart" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Instruments</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="step-forward" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">PWFA</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="landmark" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Brokers</span></div>
+                <div class="my-2 mx-6 border-t border-gray-200"></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="users" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Shared with me</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="clock" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Recent</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="star" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Starred</span></div>
+                <div class="sidebar-item"><div class="triangle-container"></div><i data-lucide="trash-2" class="menu-icon w-5 h-5 text-gray-600"></i><span class="text-sm">Trash</span></div>
+            </nav>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex-shrink-0 bg-white">
+                <div class="mb-4 text-gray-500">
+                    <div class="flex items-center justify-between whitespace-nowrap mb-1.5">
+                        <div class="flex items-center"><i data-lucide="cpu" class="w-5 h-5 mr-3 flex-shrink-0"></i><span class="text-sm text-gray-700">CPU/AI Credits</span></div>
+                        <button class="buy-btn-visible">Buy</button>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1"><div class="brand-blue-bg h-1 rounded-full w-[63%]"></div></div>
+                    <p class="text-[12px] whitespace-nowrap mt-1">95 of 150 used</p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between whitespace-nowrap mb-1.5">
+                        <div class="flex items-center"><i data-lucide="cloud" class="w-5 h-5 mr-3 flex-shrink-0"></i><span class="text-sm text-gray-700">Storage</span></div>
+                        <button class="buy-btn-visible">Buy</button>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1"><div class="brand-blue-bg h-1 rounded-full w-[90.5%]"></div></div>
+                    <p class="text-[12px] whitespace-nowrap mt-1">181MB of 200MB used</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN LIST -->
+        <main class="flex-1 flex flex-col min-w-0 bg-white overflow-hidden border-r border-gray-100">
+            <div class="px-6 pt-5 pb-2 flex-shrink-0">
+                <div class="flex justify-between items-center mb-4 text-gray-700">
+                    <div class="flex items-center space-x-1 breadcrumb-text text-lg">
+                        <span class="breadcrumb-item px-1.5 py-0.5 rounded cursor-pointer hover:bg-gray-100 transition-colors">Strategies</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                        <span class="breadcrumb-item px-1.5 py-0.5 rounded cursor-pointer hover:bg-gray-100 transition-colors">Templates</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                        <span class="breadcrumb-item px-1.5 py-0.5 rounded cursor-pointer hover:bg-gray-100 transition-colors">Futures</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                        <div class="breadcrumb-item flex items-center px-1.5 py-0.5 rounded cursor-pointer group font-medium text-gray-800">
+                            <span>Trend following</span><i data-lucide="chevron-down" class="ml-1 w-5 h-5 text-gray-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer text-gray-600"><i data-lucide="layout-grid" class="w-5 h-5"></i></div>
+                        <div class="p-2 hover:bg-gray-100 rounded-full cursor-pointer text-blue-600 bg-blue-50"><i data-lucide="info" class="w-5 h-5"></i></div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 pb-4 overflow-x-auto no-scrollbar">
+                    <button class="filter-chip">Type <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                    <button class="filter-chip">People <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                    <button class="filter-chip">Modified <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                    <button class="filter-chip">Profitable <i data-lucide="chevron-down" class="ml-1 w-4 h-4"></i></button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-auto px-6">
+                <table class="w-full text-left border-collapse table-fixed">
+                    <thead class="sticky top-0 bg-white z-10 border-b border-gray-200"><tr class="text-xs text-gray-500"><th class="py-3 font-medium w-2/5"><div class="flex items-center cursor-pointer hover:bg-gray-50 w-fit pr-2 rounded">Name <i data-lucide="arrow-down" class="ml-2 w-4 h-4 text-blue-600"></i></div></th><th class="py-3 font-medium w-1/4">Owner</th><th class="py-3 font-medium">Last modified</th><th class="py-3 font-medium">File size</th></tr></thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-blue-100 bg-blue-50 cursor-pointer"><td class="py-3 truncate flex items-center font-medium text-blue-700"><i data-lucide="line-chart" class="text-blue-500 mr-3 w-4 h-4 flex-shrink-0"></i>ES_15m_TrendFollowing_BreakOut_3</td><td><div class="flex items-center whitespace-nowrap"><img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&q=80" class="h-6 w-6 avatar-circle mr-2">me</div></td><td class="text-gray-500 font-medium">Jan 19, 2024</td><td class="text-gray-500">15 KB</td></tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"><td class="py-3 truncate flex items-center"><i data-lucide="line-chart" class="text-blue-500 mr-3 w-4 h-4 flex-shrink-0"></i>NQ_15m_TrendFollowing_BreakOut_3</td><td><div class="flex items-center whitespace-nowrap"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=40&q=80" class="h-6 w-6 avatar-circle mr-2">Alice Vance</div></td><td class="text-gray-500">Jan 21, 2024</td><td class="text-gray-500">12 KB</td></tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"><td class="py-3 truncate flex items-center"><i data-lucide="line-chart" class="text-blue-500 mr-3 w-4 h-4 flex-shrink-0"></i>AAPL_15m_TrendFollowing_BreakOut_3</td><td><div class="flex items-center whitespace-nowrap"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=40&q=80" class="h-6 w-6 avatar-circle mr-2">Mark Stone</div></td><td class="text-gray-500">Jan 15, 2024</td><td class="text-gray-500">10 KB</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- INFO PANEL -->
+        <aside class="w-[300px] border-r border-gray-100 flex flex-col h-full bg-white flex-shrink-0 overflow-hidden">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center"><span class="text-sm font-medium truncate uppercase tracking-tighter text-gray-500">Details</span><i data-lucide="x" class="w-5 h-5 text-gray-400 cursor-pointer"></i></div>
+            <div class="p-5 overflow-y-auto flex-1 info-scroll">
+                <p class="text-[13px] font-medium text-gray-900 mb-2">Equity Curve</p>
+                <div class="h-28 mb-4"><canvas id="equityChart"></canvas></div>
+                
+                <div class="border-t pt-3 mb-4">
+                    <p class="text-[13px] font-medium text-gray-900 mb-3 uppercase tracking-wide text-xs">Strategy Metrics</p>
+                    <div class="grid grid-cols-2 gap-x-3">
+                        <div><p class="info-label">Net Profit</p><p class="info-value text-green-600">+$14,883.20</p></div>
+                        <div><p class="info-label">Max drawdown</p><p class="info-value text-red-500">8.40%</p></div>
+                        <div><p class="info-label">Sharpe Ratio</p><p class="info-value">1.85</p></div>
+                        <div><p class="info-label">Ann. Sharpe</p><p class="info-value">2.15</p></div>
+                        <div><p class="info-label">Calmar Ratio</p><p class="info-value">2.38</p></div>
+                        <div><p class="info-label">Sortino Ratio</p><p class="info-value">2.45</p></div>
+                        <div><p class="info-label">Profit factor</p><p class="info-value">2.12</p></div>
+                        <div><p class="info-label">% Profitable</p><p class="info-value">58.4%</p></div>
+                        <div><p class="info-label">Total Trades</p><p class="info-value">452</p></div>
+                        <div><p class="info-label">Avg Trade</p><p class="info-value">+$32.92</p></div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-3 mb-4">
+                    <p class="text-[13px] font-medium text-gray-900 mb-3 uppercase tracking-wide text-xs">Strategy properties</p>
+                    <div class="grid grid-cols-2 gap-x-2">
+                        <div><p class="info-label">Type</p><p class="info-value">FalconScript</p></div>
+                        <div><p class="info-label">OOS Since</p><p class="info-value whitespace-nowrap">2022-11-15</p></div>
+                        <div class="col-span-2"><p class="info-label">Signal</p><p class="info-value truncate text-[11px]">ES-15m-TF-BO_Base.signal</p></div>
+                        <div class="col-span-2"><p class="info-label">Instrument (data1)</p><p class="info-value truncate text-[11px]">CME:ES (E-Mini S&P 500), 15m</p></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- AI ASSISTANT -->
+        <aside class="w-[340px] flex flex-col bg-white overflow-hidden flex-shrink-0 shadow-sm border-l border-gray-100">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="brand-blue-bg p-1 rounded flex items-center justify-center shadow-sm"><i data-lucide="sparkles" class="text-white w-4 h-4"></i></div>
+                    <span class="text-sm ai-title font-medium text-gray-800">AI Assistant</span>
+                </div>
+                <div class="flex items-center space-x-2"><i data-lucide="history" class="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"></i><i data-lucide="x" class="w-5 h-5 text-gray-400 cursor-pointer hover:bg-gray-100 rounded transition-colors"></i></div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-5 bg-[#fafafa]">
+                <div class="flex space-x-3 mb-6">
+                    <div class="w-7 h-7 brand-blue-bg rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"><i data-lucide="zap" class="text-white w-3.5 h-3.5"></i></div>
+                    <div class="ai-chat-text pt-0.5">
+                        Hello! I'm your TradingBoard AI Assistant.
+                        <br><br>
+                        I can help you design, backtest, and deploy robust trading strategies in minutes. I'm here to handle the complexity of:
+                        <ul class="list-disc ml-5 mt-1 space-y-1 text-xs">
+                            <li>Generating FalconScript from your ideas.</li>
+                            <li>Backtesting & Optimization for portfolio robustness.</li>
+                            <li>Live Re-optimization based on current market data.</li>
+                        </ul>
+                        <br>
+                        <b>How can I assist your trading today?</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-gray-200 bg-white">
+                <div class="relative bg-[#f0f4f9] rounded-[20px] p-4 pb-2 group focus-within:bg-white focus-within:ring-1 focus-within:ring-gray-200 transition-all shadow-sm">
+                    <textarea class="w-full bg-transparent border-none outline-none text-xs text-gray-700 resize-none h-[130px] leading-relaxed overflow-y-hidden" readonly>Analyze the live trades of the ES_15m_TrendFollowing_BreakOut_3 strategy over the last 3 months and suggest changes we should make to the signal and its input parameters to improve performance and prevent over-optimization.</textarea>
+                    <div class="flex justify-end mt-1"><button class="brand-blue-bg text-white p-1.5 rounded-full shadow-md hover:opacity-90 transition-opacity"><i data-lucide="arrow-up" class="w-4 h-4"></i></button></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const ctx = document.getElementById('equityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['2022', '', '', '', '2023', '', '', '', '2024'],
+                datasets: [{ data: [10000, 11500, 10200, 14000, 15500, 18200, 17500, 22000, 24883], borderColor: '#1a73e8', backgroundColor: 'rgba(26, 115, 232, 0.04)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: true, grid: { display: false }, ticks: { font: { size: 10 } } }, y: { position: 'right', ticks: { font: { size: 9 }, callback: (v) => '$' + v/1000 + 'k' } } } }
+        });
+
+        function closeHelp() {
+            const overlay = document.getElementById('helpOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+    </script>
+</body>
+</html>

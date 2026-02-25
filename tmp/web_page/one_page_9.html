@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    <!-- Three.js for the Cube -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: rgb(24, 97, 217);
+            --brand-red: rgb(235, 67, 51);
+            --brand-yellow: rgb(250, 205, 34);
+            --brand-green: rgb(41, 178, 94);
+            --bg-black: #000000;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 25px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 100%;
+            filter: brightness(1.2);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 8%;
+            position: relative;
+        }
+
+        .hero-left {
+            flex: 1;
+            z-index: 2;
+        }
+
+        .hero-right {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 300;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            background: linear-gradient(to bottom, #fff 50%, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: #9aa0a6;
+            max-width: 500px;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* --- CTA Box --- */
+        .cta-box {
+            display: flex;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 100px;
+            width: fit-content;
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-box input {
+            background: transparent;
+            border: none;
+            padding: 0 25px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            width: 250px;
+        }
+
+        .cta-box button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .cta-box button:hover {
+            background: var(--brand-blue);
+            color: #fff;
+            transform: scale(1.02);
+        }
+
+        /* --- Canvas Container --- */
+        #cube-container {
+            width: 100%;
+            height: 100%;
+            cursor: move;
+        }
+
+        /* --- Feature Sections --- */
+        .features {
+            padding: 100px 8%;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 100px;
+            align-items: center;
+            margin-bottom: 200px;
+        }
+
+        .feature-row.reverse {
+            direction: rtl;
+        }
+        .feature-row.reverse .text-content {
+            direction: ltr;
+        }
+
+        .caption {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            display: block;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .copy {
+            color: #9aa0a6;
+            font-size: 1.1rem;
+            max-width: 550px;
+        }
+
+        /* --- Generative Visuals (Google Style) --- */
+        .visual-container {
+            aspect-ratio: 16/10;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .abstract-shape {
+            position: absolute;
+            filter: blur(60px);
+            opacity: 0.4;
+            border-radius: 50%;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 100px 50px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 968px) {
+            .hero { flex-direction: column; text-align: center; justify-content: center; height: auto; padding-top: 150px; }
+            .hero-left { display: flex; flex-direction: column; align-items: center; }
+            .hero-right { height: 400px; width: 100%; }
+            .feature-row, .feature-row.reverse { grid-template-columns: 1fr; gap: 50px; text-align: center; }
+            .cta-box { width: 100%; max-width: 400px; }
+            .cta-box input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <img src="https://drive.google.com/uc?export=view&id=1P7rashXqbDSALuio45iOcqd91yGEYqvi" alt="TradingBoard Logo">
+            <span style="font-weight: 600; letter-spacing: -0.5px;">TradingBoard.ai</span>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-left">
+            <h1>THE DESKTOP TRAP <br>Ends Here.</h1>
+            <p class="hero-sub">
+                TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+            </p>
+            <div class="cta-box">
+                <input type="email" placeholder="Enter your email">
+                <button>Request Early Access</button>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div id="cube-container"></div>
+        </div>
+    </header>
+
+    <section class="features">
+        <!-- Section A -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue)">Zero-Friction Migration.</span>
+                <h2>FalconScript™: <br>Legacy Logic, Modern Speed</h2>
+                <p class="copy">Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 300px; height: 300px; background: var(--brand-blue); top: -50px; left: -50px;"></div>
+                <svg width="200" height="200" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                    <path d="M20 50 L80 50 M50 20 L50 80" stroke="var(--brand-blue)" stroke-width="1"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Section B -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red)">Institutional Infrastructure.</span>
+                <h2>Operationally Lean: <br>Reclaim Your Time</h2>
+                <p class="copy">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 250px; height: 250px; background: var(--brand-red); bottom: -50px; right: -50px;"></div>
+                <div style="width: 150px; height: 150px; border: 1px solid rgba(255,255,255,0.2); transform: rotate(45deg); position: relative;">
+                    <div style="position: absolute; width: 100%; height: 100%; border: 1px solid var(--brand-red); top: 10px; left: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section C -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-yellow)">Scale Beyond Single Strategies.</span>
+                <h2>Portfolio-First Architecture</h2>
+                <p class="copy">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 300px; height: 300px; background: var(--brand-yellow); top: 20%; left: 20%;"></div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 120px;">
+                    <div style="height: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--brand-yellow);"></div>
+                    <div style="height: 40px; background: rgba(255,255,255,0.1);"></div>
+                    <div style="height: 40px; background: rgba(255,255,255,0.05);"></div>
+                    <div style="height: 40px; background: rgba(255,255,255,0.1);"></div>
+                    <div style="height: 40px; background: var(--brand-yellow); opacity: 0.5;"></div>
+                    <div style="height: 40px; background: rgba(255,255,255,0.1);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section D -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-green)">Explainable AI (XAI).</span>
+                <h2>Integrated AI Co-Pilot</h2>
+                <p class="copy">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 350px; height: 350px; background: var(--brand-green); opacity: 0.2;"></div>
+                <svg width="150" height="150" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="15" fill="var(--brand-green)" />
+                    <circle cx="50" cy="50" r="30" fill="none" stroke="var(--brand-green)" stroke-width="0.5" stroke-dasharray="4" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Section E -->
+        <div class="feature-row">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-blue)">Monetize Your Expertise.</span>
+                <h2>The Mentor Hub</h2>
+                <p class="copy">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 250px; height: 250px; background: var(--brand-blue); top: 10%; right: 10%;"></div>
+                <div style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--brand-blue);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section F -->
+        <div class="feature-row reverse">
+            <div class="text-content">
+                <span class="caption" style="color: var(--brand-red)">Built for Teams.</span>
+                <h2>Collaborative Intelligence</h2>
+                <p class="copy">Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.</p>
+            </div>
+            <div class="visual-container">
+                <div class="abstract-shape" style="width: 300px; height: 300px; background: var(--brand-red); opacity: 0.1;"></div>
+                <div style="display: flex; gap: -20px;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #333; border: 2px solid var(--bg-black);"></div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #555; border: 2px solid var(--bg-black);"></div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--brand-red); border: 2px solid var(--bg-black);"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 TradingBoard.ai. Built for the Next Generation of Alpha.</p>
+    </footer>
+
+    <script>
+        // --- Three.js Shining Cube Logic ---
+        const container = document.getElementById('cube-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Geometry: Two cubes (Outer wireframe and Inner solid)
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        
+        // Material 1: Wireframe (White/Glass)
+        const wireMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15 
+        });
+        const wireCube = new THREE.Mesh(geometry, wireMaterial);
+        scene.add(wireCube);
+
+        // Material 2: Inner glowing cube
+        const innerGeom = new THREE.BoxGeometry(1.98, 1.98, 1.98);
+        const innerMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x1861d9, // Brand Blue
+            metalness: 0.9,
+            roughness: 0.1,
+            transparent: true,
+            opacity: 0.4,
+            transmission: 0.5,
+            thickness: 1
+        });
+        const innerCube = new THREE.Mesh(innerGeom, innerMaterial);
+        scene.add(innerCube);
+
+        // Add Lights to create the "Shining" effect
+        const mainLight = new THREE.PointLight(0xffffff, 1.5);
+        mainLight.position.set(5, 5, 5);
+        scene.add(mainLight);
+
+        const blueLight = new THREE.PointLight(0x1861d9, 2);
+        blueLight.position.set(-5, -5, 5);
+        scene.add(blueLight);
+
+        const redLight = new THREE.PointLight(0xeb4333, 1);
+        redLight.position.set(0, 5, -5);
+        scene.add(redLight);
+
+        camera.position.z = 5;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Subtle rotation
+            wireCube.rotation.y += 0.003;
+            wireCube.rotation.x += 0.002;
+            innerCube.rotation.y += 0.003;
+            innerCube.rotation.x += 0.002;
+
+            // Breathing/Shining scale effect
+            const time = Date.now() * 0.001;
+            const scale = 1 + Math.sin(time) * 0.05;
+            innerCube.scale.set(scale, scale, scale);
+            
+            renderer.render(scene, camera);
+        }
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

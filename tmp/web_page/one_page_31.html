@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBoard.ai | The Desktop Trap Ends Here</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --tb-blue: #1861D9;
+            --tb-red: #EB4333;
+            --tb-yellow: #FACD22;
+            --tb-green: #29B25E;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Hero Text Grayscale Gradient */
+        .hero-title {
+            background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+        }
+
+        /* Star Background Container */
+        #star-field {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Antigravity Glass Box Style */
+        .shining-box {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 16 / 10;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .shining-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--glow-color) 0%, transparent 75%);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .cta-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            max-width: 500px;
+        }
+
+        .cta-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 10px 20px;
+            flex-grow: 1;
+        }
+
+        canvas { display: block; }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-6 bg-black/20 backdrop-blur-md">
+        <div class="flex items-center gap-2">
+            <!-- Logo set to 1:1 aspect ratio -->
+            <img src="https://drive.google.com/thumbnail?id=1P7rashXqbDSALuio45iOcqd91yGEYqvi&sz=w500" 
+                 alt="TradingBoard Logo" 
+                 class="h-8 w-8 object-contain">
+            <span class="font-semibold text-lg tracking-tight">TradingBoard.ai</span>
+        </div>
+        <div class="flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="#" class="hover:text-white transition">ScreenShots</a>
+            <a href="#" class="hover:text-white transition">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Starry Background -->
+    <div id="star-field"></div>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center pt-20 px-8 lg:px-24">
+        <div class="z-10 w-full grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <h1 class="hero-title text-6xl lg:text-8xl mb-8">
+                    THE DESKTOP TRAP<br>Ends Here.
+                </h1>
+                <p class="text-zinc-400 text-lg lg:text-xl max-w-xl mb-12 leading-relaxed">
+                    TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha.
+                </p>
+                
+                <div class="cta-container">
+                    <input type="email" placeholder="Enter your email" class="cta-input">
+                    <button class="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-zinc-200 transition whitespace-nowrap">
+                        Request Early Access
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Rotating Cube with Shining Edges -->
+            <div id="cube-container" class="h-[500px] lg:h-[600px] w-full"></div>
+        </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main class="relative z-10 px-8 lg:px-24 py-32 space-y-64 max-w-7xl mx-auto">
+
+        <!-- a) FalconScript -->
+        <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Zero-Friction Migration</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">FalconScript™: Legacy Logic, Modern Speed</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-blue)">
+                <div class="font-mono text-[11px] text-blue-300 p-10 leading-relaxed w-full">
+                    <span class="text-zinc-500">// Native Strategy Import</span><br>
+                    <span class="text-blue-400">Inputs:</span> Length(20), StdDev(2);<br>
+                    <span class="text-blue-400">Vars:</span> UpperBand(0);<br><br>
+                    UpperBand = Average(Close, Length) + (StdDev * StdDev(Close, Length));<br>
+                    <span class="text-green-400">If</span> Close <span class="text-red-400">crosses over</span> UpperBand <span class="text-green-400">Then</span> Buy next bar;
+                </div>
+            </div>
+        </section>
+
+        <!-- b) Operationally Lean -->
+        <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-red)] font-bold tracking-widest text-xs uppercase mb-4">Institutional Infrastructure, Zero Maintenance</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">Operationally Lean: Reclaim Your Time</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-red)">
+                <i data-lucide="shield-check" class="w-20 h-20 text-red-500 opacity-80"></i>
+            </div>
+        </section>
+
+        <!-- c) Portfolio-First Architecture -->
+        <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-yellow)] font-bold tracking-widest text-xs uppercase mb-4">Scale Beyond Single Strategies</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">Portfolio-First Architecture</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-yellow)">
+                <i data-lucide="git-merge" class="w-20 h-20 text-yellow-500 opacity-80"></i>
+            </div>
+        </section>
+
+        <!-- d) Integrated AI Co-Pilot -->
+        <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Explainable AI (XAI) for Strategy Design</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">Integrated AI Co-Pilot</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic. No black boxes—just smarter, faster iterations.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-green)">
+                <i data-lucide="sparkle" class="w-20 h-20 text-green-500 opacity-80"></i>
+            </div>
+        </section>
+
+        <!-- e) Mentor Hub -->
+        <section class="reveal flex flex-col lg:flex-row items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Monetize Your Expertise</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">The Mentor Hub</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing and community oversight.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-blue)">
+                <div class="flex items-end gap-4">
+                    <i data-lucide="user" class="w-10 h-10 text-zinc-600"></i>
+                    <i data-lucide="user" class="w-20 h-20 text-blue-500"></i>
+                    <i data-lucide="user" class="w-10 h-10 text-zinc-600"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- f) Collaborative Intelligence -->
+        <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
+            <div class="flex-1">
+                <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Built for Teams</p>
+                <h2 class="text-4xl lg:text-5xl font-medium mb-8">Collaborative Intelligence</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed">Move from solo trading to collaborative alpha. Securely share strategies, portfolios, and execution logs with partners and collaborators in a cloud-native environment.</p>
+            </div>
+            <div class="shining-box" style="--glow-color: var(--tb-green)">
+                <div class="grid grid-cols-2 gap-8">
+                    <i data-lucide="user" class="w-12 h-12 text-green-500 opacity-80"></i>
+                    <i data-lucide="user" class="w-12 h-12 text-green-500 opacity-80"></i>
+                    <i data-lucide="user" class="w-12 h-12 text-green-500 opacity-80"></i>
+                    <i data-lucide="user" class="w-12 h-12 text-green-500 opacity-80"></i>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-20 border-t border-zinc-900 text-center text-zinc-600 text-sm">
+        <p>© 2024 TradingBoard.ai | Designed for next-generation alpha.</p>
+    </footer>
+
+    <script>
+        // --- LUCIDE ICONS ---
+        lucide.createIcons();
+
+        // --- SCROLL REVEAL ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- THREE.JS BACKGROUND STARS ---
+        const starScene = new THREE.Scene();
+        const starCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const starRenderer = new THREE.WebGLRenderer({ alpha: true });
+        starRenderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('star-field').appendChild(starRenderer.domElement);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 1000;
+        const starArr = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount*3; i++) { starArr[i] = (Math.random() - 0.5) * 1500; }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starArr, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.5 });
+        const stars = new THREE.Points(starGeo, starMat);
+        starScene.add(stars);
+        starCamera.position.z = 1;
+
+        // --- THREE.JS HERO CUBE ---
+        const container = document.getElementById('cube-container');
+        const cubeScene = new THREE.Scene();
+        const cubeCamera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const cubeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        cubeRenderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(cubeRenderer.domElement);
+
+        // Lights to create the Blue/Red "Shine" on white lines
+        const lightBlue = new THREE.PointLight(0x1861D9, 2, 10);
+        const lightRed = new THREE.PointLight(0xEB4333, 2, 10);
+        cubeScene.add(lightBlue);
+        cubeScene.add(lightRed);
+
+        // The White Cube
+        const geo = new THREE.BoxGeometry(3, 3, 3);
+        const edges = new THREE.EdgesGeometry(geo);
+        const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        const cube = new THREE.LineSegments(edges, mat);
+        cubeScene.add(cube);
+
+        // Bouncing Ball
+        const ball = new THREE.Mesh(
+            new THREE.SphereGeometry(0.12, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        cubeScene.add(ball);
+
+        cubeCamera.position.z = 6;
+        let bPos = new THREE.Vector3(0,0,0);
+        let bVel = new THREE.Vector3(0.04, 0.05, 0.03);
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Background movement
+            stars.rotation.y += 0.0002;
+            stars.rotation.x += 0.0001;
+            starRenderer.render(starScene, starCamera);
+
+            // Cube movement
+            cube.rotation.y += 0.005;
+            cube.rotation.x += 0.003;
+            
+            // Ball Physics within box (bounds approx -1.4 to 1.4)
+            bPos.add(bVel);
+            if(Math.abs(bPos.x) > 1.4) bVel.x *= -1;
+            if(Math.abs(bPos.y) > 1.4) bVel.y *= -1;
+            if(Math.abs(bPos.z) > 1.4) bVel.z *= -1;
+            ball.position.copy(bPos);
+
+            // Shining Line Effect (Orbiting lights)
+            const time = Date.now() * 0.002;
+            lightBlue.position.set(Math.sin(time) * 4, Math.cos(time) * 4, 1);
+            lightRed.position.set(Math.cos(time) * 4, Math.sin(time) * 4, -1);
+
+            cubeRenderer.render(cubeScene, cubeCamera);
+        }
+
+        window.addEventListener('resize', () => {
+            starCamera.aspect = window.innerWidth / window.innerHeight;
+            starCamera.updateProjectionMatrix();
+            starRenderer.setSize(window.innerWidth, window.innerHeight);
+
+            cubeCamera.aspect = container.clientWidth / container.clientHeight;
+            cubeCamera.updateProjectionMatrix();
+            cubeRenderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

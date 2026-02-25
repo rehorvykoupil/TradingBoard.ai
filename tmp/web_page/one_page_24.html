@@ -1,0 +1,196 @@
+import React, { useRef, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text } from '@react-three/drei';
+import { motion } from 'framer-motion';
+import * as THREE from 'three';
+
+// --- 3D COMPONENT: THE CUBE & BOUNCING BALL ---
+const BouncingCube = () => {
+  const meshRef = useRef();
+  const ballRef = useRef();
+  const [pos, setPos] = useState(new THREE.Vector3(0, 0, 0));
+  const [vel, setVel] = useState(new THREE.Vector3(0.02, 0.03, 0.01));
+
+  useFrame(() => {
+    // Rotate Cube
+    meshRef.current.rotation.x += 0.005;
+    meshRef.current.rotation.y += 0.005;
+
+    // Ball Physics (Inside Cube bounds approx -0.7 to 0.7)
+    let newPos = ballRef.current.position.clone().add(vel);
+    let newVel = vel.clone();
+
+    if (Math.abs(newPos.x) > 0.7) newVel.x *= -1;
+    if (Math.abs(newPos.y) > 0.7) newVel.y *= -1;
+    if (Math.abs(newPos.z) > 0.7) newVel.z *= -1;
+
+    ballRef.current.position.copy(newPos);
+    setVel(newVel);
+  });
+
+  return (
+    <group>
+      {/* Wireframe Cube */}
+      <mesh ref={meshRef}>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshStandardMaterial color="#1861D9" wireframe linewidth={2} transparent opacity={0.3} />
+      </mesh>
+      
+      {/* Inner Bouncing Ball */}
+      <mesh ref={ballRef}>
+        <sphereGeometry args={[0.15, 32, 32]} />
+        <meshStandardMaterial color="#EB4333" emissive="#EB4333" emissiveIntensity={2} />
+        <pointLight color="#EB4333" intensity={1} distance={5} />
+      </mesh>
+    </group>
+  );
+};
+
+// --- UI COMPONENTS ---
+const Section = ({ title, caption, copy, visual, color, reverse }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    className={`flex flex-col ${reverse ? 'md:flex-row-reverse' : 'md:flex-row'} items-center py-24 px-8 md:px-24 gap-12 border-b border-white/5`}
+  >
+    <div className="flex-1">
+      <span className="text-xs uppercase tracking-widest font-bold" style={{ color: color }}>{caption}</span>
+      <h2 className="text-4xl font-light text-white mt-4 mb-6 leading-tight">{title}</h2>
+      <p className="text-gray-400 text-lg leading-relaxed">{copy}</p>
+    </div>
+    <div className="flex-1 w-full flex justify-center">
+      {visual}
+    </div>
+  </motion.div>
+);
+
+export default function TradingBoardLanding() {
+  return (
+    <div className="bg-black text-white font-sans selection:bg-blue-500/30">
+      {/* NAVIGATION */}
+      <nav className="flex justify-between items-center p-8 absolute w-full z-10">
+        <img src="https://drive.usercontent.google.com/u/0/uc?id=1P7rashXqbDSALuio45iOcqd91yGEYqvi" alt="TradingBoard Logo" className="h-8" />
+        <div className="hidden md:flex gap-8 text-sm text-gray-400">
+          <a href="#" className="hover:text-white transition">Platform</a>
+          <a href="#" className="hover:text-white transition">FalconScript</a>
+          <a href="#" className="hover:text-white transition">Pricing</a>
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <section className="min-h-screen flex flex-col md:flex-row items-center px-8 md:px-24 pt-20">
+        <div className="flex-1 z-10">
+          <motion.h1 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-6xl md:text-8xl font-medium tracking-tighter mb-6"
+          >
+            THE DESKTOP TRAP <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-400">Ends Here.</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-xl text-gray-400 text-xl mb-10 leading-relaxed"
+          >
+            TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface.
+          </motion.p>
+          
+          <div className="flex flex-wrap gap-4">
+            <input 
+              type="email" 
+              placeholder="Enter your email" 
+              className="bg-white/5 border border-white/10 px-6 py-4 rounded-full w-72 focus:outline-none focus:border-blue-500 transition"
+            />
+            <button className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-gray-200 transition">
+              Request Early Access
+            </button>
+          </div>
+        </div>
+
+        {/* CUBE VISUAL */}
+        <div className="flex-1 h-[500px] w-full mt-12 md:mt-0">
+          <Canvas camera={{ position: [0, 0, 5] }}>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} />
+            <BouncingCube />
+            <OrbitControls enableZoom={false} autoRotate />
+          </Canvas>
+        </div>
+      </section>
+
+      {/* FEATURE SECTIONS */}
+      <div className="bg-zinc-950/50">
+        <Section 
+          title="FalconScript™: Legacy Logic, Modern Speed"
+          caption="Zero-Friction Migration"
+          color="#1861D9"
+          copy="Native compatibility with the industry’s legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly."
+          visual={
+            <div className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 font-mono text-sm w-full max-w-md shadow-2xl">
+              <div className="flex gap-2 mb-4"><div className="w-3 h-3 rounded-full bg-red-500"/> <div className="w-3 h-3 rounded-full bg-yellow-500"/> <div className="w-3 h-3 rounded-full bg-green-500"/></div>
+              <p className="text-blue-400">Inputs: Length(20), StdDev(2);</p>
+              <p className="text-green-400">Vars: UpperBand(0), LowerBand(0);</p>
+              <p className="text-white mt-2">UpperBand = Average(Close, Length) + (StdDev * StandardDev(Close, Length));</p>
+              <p className="text-yellow-400 mt-2">If Close crosses over UpperBand then Buy next bar at Market;</p>
+            </div>
+          }
+        />
+
+        <Section 
+          reverse
+          title="Operationally Lean: Reclaim Your Time"
+          caption="Institutional Infrastructure"
+          color="#EB4333"
+          copy="Stop wasting 5+ hours a week on futures contract mapping and VPS monitoring. Eliminate capital loss caused by unreliable hardware."
+          visual={
+            <div className="relative w-64 h-64 flex items-center justify-center">
+               <div className="absolute inset-0 bg-red-500/20 blur-[100px] rounded-full" />
+               <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#EB4333" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          }
+        />
+
+        <Section 
+          title="Portfolio-First Architecture"
+          caption="Scale Beyond Single Strategies"
+          color="#FACD22"
+          copy="Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA)."
+          visual={
+            <div className="grid grid-cols-3 gap-4">
+               {[1,2,3,4,5,6].map(i => <div key={i} className="w-16 h-16 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex items-center justify-center">
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FACD22" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+               </div>)}
+            </div>
+          }
+        />
+
+        <Section 
+          reverse
+          title="Integrated AI Co-Pilot"
+          caption="Explainable AI (XAI)"
+          color="#29B25E"
+          copy="Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language into FalconScript logic."
+          visual={
+            <div className="flex gap-4 items-center">
+               <span className="text-6xl animate-pulse text-green-400">✦</span>
+               <span className="text-4xl text-green-400/50">✦</span>
+               <span className="text-2xl text-green-400/30">✦</span>
+            </div>
+          }
+        />
+      </div>
+
+      {/* FOOTER CTA */}
+      <footer className="py-20 px-8 text-center border-t border-white/10">
+        <h2 className="text-3xl font-light mb-8">Ready to evolve?</h2>
+        <button className="bg-blue-600 text-white px-10 py-4 rounded-full font-bold hover:bg-blue-700 transition">
+          Join the Beta
+        </button>
+        <p className="mt-12 text-gray-600 text-sm">© 2024 TradingBoard.ai. Built for systematic alpha.</p>
+      </footer>
+    </div>
+  );
+}

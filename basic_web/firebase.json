@@ -1,0 +1,25 @@
+{
+  "hosting": {
+    "site": "my-project-web-488416-67f4f",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "PLAN.md",
+      "DEPLOY.md",
+      "cloud_function",
+      "**/*.bat",
+      "**/*.cmd",
+      "**/*.exe",
+      "**/*.sh",
+      "README.md"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
