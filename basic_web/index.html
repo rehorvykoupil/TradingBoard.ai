@@ -49,6 +49,13 @@
             min-height: 100vh;
             z-index: 10;
         }
+        @media (max-width: 1023px) {
+            .page-header {
+                padding-top: 160px;
+                padding-bottom: 80px;
+                min-height: auto;
+            }
+        }
 
         .hero-h1 {
             background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
@@ -58,8 +65,10 @@
             letter-spacing: -0.04em;
             line-height: 1.1;
             text-transform: uppercase;
-            white-space: nowrap; 
             font-size: clamp(1.8rem, 5.5vw, 5.5rem);
+        }
+        @media (min-width: 1024px) {
+            .hero-h1 { white-space: nowrap; }
         }
 
         .hero-p {
@@ -140,6 +149,16 @@
             position: relative;
             z-index: 20;
         }
+        @media (max-width: 639px) {
+            .cta-wrapper {
+                flex-direction: column;
+                border-radius: 1rem;
+                padding: 8px;
+                max-width: 100%;
+            }
+            .cta-wrapper .cta-input { min-height: 48px; text-align: center; }
+            .cta-wrapper button { width: 100%; min-height: 48px; }
+        }
         .cta-input { background: transparent; border: none; outline: none; color: white; padding: 10px 24px; flex-grow: 1; }
 
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -152,6 +171,16 @@
 
         .form-input { border: 1px solid; }
         .btn-loading { pointer-events: none; opacity: 0.7; }
+
+        /* Mobile: touch targets and tap highlight */
+        @media (max-width: 1023px) {
+            .ux-screenshot-box { -webkit-tap-highlight-color: rgba(24, 97, 217, 0.2); }
+            .feature-box { min-height: 200px; aspect-ratio: auto; }
+        }
+        @media (max-width: 639px) {
+            #lightbox { padding: 12px; }
+            #lightbox-img { max-height: 80vh; }
+        }
     </style>
 </head>
 <body>
@@ -159,14 +188,12 @@
     <div id="star-bg"></div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 py-6 bg-black/10 backdrop-blur-sm">
-        <a href="#home" class="flex items-center cursor-pointer" aria-label="Home">
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 lg:px-10 py-4 lg:py-6 bg-black/10 backdrop-blur-sm">
+        <a href="#home" class="flex items-center cursor-pointer min-h-[44px] min-w-[44px] items-center justify-center -m-2 p-2" aria-label="Home">
             <img src="assets/logo.png" alt="TradingBoard Logo" class="h-6 md:h-7 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling?.classList.remove('hidden');" />
             <span class="text-xl font-semibold hidden">TradingBoard.ai</span>
         </a>
-        <div class="flex gap-10 text-xs font-bold uppercase tracking-widest text-zinc-400">
-            <a href="#contact" class="hover:text-white transition uppercase">Contact</a>
-        </div>
+        <a href="#contact" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Contact</a>
     </nav>
 
     <!-- Lightbox -->
@@ -176,11 +203,11 @@
 
     <!-- HOMEPAGE VIEW -->
     <div id="home-page" class="page-view active">
-        <header class="page-header px-10 lg:px-24">
+        <header class="page-header px-5 sm:px-8 lg:px-24">
             <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
-                <div class="flex-shrink-0">
-                    <h1 class="hero-h1 mb-8">THE DESKTOP TRAP<br>Ends Here.</h1>
-                    <p class="hero-p mb-12">
+                <div class="flex-shrink-0 w-full">
+                    <h1 class="hero-h1 mb-6 lg:mb-8">THE DESKTOP TRAP<br>Ends Here</h1>
+                    <p class="hero-p mb-8 lg:mb-12">
                         TradingBoard.ai is a modern cloud ecosystem for algorithmic trading. Unify design, institutional-grade testing, and 24/7 automation in one seamless interface. Built for the next generation of systematic alpha across Stocks, Futures, Crypto, CFDs, and Forex.
                     </p>
                     <div class="cta-wrapper">
@@ -191,21 +218,21 @@
                     </div>
                     <p id="cta-message" class="mt-3 text-sm text-zinc-400 hidden"></p>
                 </div>
-                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[500px]" data-cube="home"></div>
+                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[280px] sm:h-[360px] lg:h-[500px] mt-8 lg:mt-0" data-cube="home"></div>
             </div>
         </header>
 
-        <main class="relative z-10 px-10 lg:px-24 pb-32 space-y-64 max-w-7xl mx-auto">
+        <main class="relative z-10 px-5 sm:px-8 lg:px-24 pb-20 lg:pb-32 space-y-40 sm:space-y-52 lg:space-y-64 max-w-7xl mx-auto">
             
             <!-- a) FalconScript -->
-            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Zero-Friction Migration</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">FalconScript™: Legacy Logic, Modern Speed</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Native compatibility with the industry's legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">FalconScript™: Legacy Logic, Modern Speed</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Native compatibility with the industry's legendary languages. Import your EasyLanguage™ or PowerLanguage™ strategies instantly. FalconScript™ is simple enough for non-programmers but powerful enough for professional quants.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-blue)">
-                    <div class="font-mono text-[11px] text-blue-300 p-10 leading-relaxed w-full">
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-blue)">
+                    <div class="font-mono text-[10px] sm:text-[11px] text-blue-300 p-5 sm:p-10 leading-relaxed w-full overflow-x-auto">
                         <span class="text-zinc-600">// Native Strategy Migration</span><br>
                         <span class="text-blue-400">Inputs:</span> Length(20), StdDev(2);<br>
                         <span class="text-blue-400">Vars:</span> UpperBand(0);<br><br>
@@ -216,93 +243,93 @@
             </section>
 
             <!-- b) Operationally Lean -->
-            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-red)] font-bold tracking-widest text-xs uppercase mb-4">Institutional Infrastructure, Zero Maintenance</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Operationally Lean: Reclaim Your Time</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">Operationally Lean: Reclaim Your Time</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Stop wasting 5+ hours a week on futures contract mapping, VPS server monitoring, and security troubleshooting. Eliminate capital loss caused by unreliable hardware and faulty local operations.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-red)">
-                    <i data-lucide="shield-check" class="w-24 h-24 text-red-500 opacity-80"></i>
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-red)">
+                    <i data-lucide="shield-check" class="w-20 h-20 sm:w-24 sm:h-24 text-red-500 opacity-80"></i>
                 </div>
             </section>
 
             <!-- c) Portfolio-First Architecture -->
-            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-yellow)] font-bold tracking-widest text-xs uppercase mb-4">Scale Beyond Single Strategies</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Portfolio-First Architecture</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">Portfolio-First Architecture</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Centralize hundreds of strategies in one management system. Validate your total risk using our proprietary Portfolio Walk-Forward Analyzer (PWFA) and institutional-grade backtester.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-yellow)">
-                    <i data-lucide="network" class="w-24 h-24 text-yellow-500 opacity-80"></i>
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-yellow)">
+                    <i data-lucide="network" class="w-20 h-20 sm:w-24 sm:h-24 text-yellow-500 opacity-80"></i>
                 </div>
             </section>
 
             <!-- d) Integrated AI Co-Pilot -->
-            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Explainable AI (XAI) for Strategy Design</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Integrated AI <span class="whitespace-nowrap">Co-Pilot</span></h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">Integrated AI <span class="whitespace-nowrap">Co-Pilot</span></h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Use an embedded AI assistant to analyze execution logs, identify regime shifts, or transform natural language ideas into auditable FalconScript logic.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-green)">
-                    <i data-lucide="sparkles" class="w-24 h-24 text-green-500 opacity-80"></i>
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-green)">
+                    <i data-lucide="sparkles" class="w-20 h-20 sm:w-24 sm:h-24 text-green-500 opacity-80"></i>
                 </div>
             </section>
 
             <!-- e) Mentor Hub -->
-            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Monetize Your Expertise</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">The Mentor Hub</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">The Mentor Hub</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">A dedicated workspace for educators. Share strategies and portfolios with students while securing your Intellectual Property. Build recurring revenue through automated licensing.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-blue)">
-                    <div class="flex items-end gap-5">
-                        <i data-lucide="user" class="w-12 h-12 text-zinc-600"></i>
-                        <i data-lucide="user" class="w-24 h-24 text-blue-500"></i>
-                        <i data-lucide="user" class="w-12 h-12 text-zinc-600"></i>
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-blue)">
+                    <div class="flex items-end gap-3 sm:gap-5">
+                        <i data-lucide="user" class="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600"></i>
+                        <i data-lucide="user" class="w-20 h-20 sm:w-24 sm:h-24 text-blue-500"></i>
+                        <i data-lucide="user" class="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600"></i>
                     </div>
                 </div>
             </section>
 
             <!-- f) Collaborative Intelligence -->
-            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row-reverse items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-green)] font-bold tracking-widest text-xs uppercase mb-4">Built for Teams</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Collaborative Intelligence</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Move from solo trading to collaborative alpha. Securely share strategies and execution logs with partners in a cloud-native environment.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">Collaborative Intelligence</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Move from solo trading to collaborative alpha. Securely share strategies and execution logs with partners in a cloud-native environment.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-green)">
-                    <div class="grid grid-cols-2 gap-10">
-                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
-                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
-                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
-                        <i data-lucide="user" class="w-14 h-14 text-green-500 opacity-80"></i>
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-green)">
+                    <div class="grid grid-cols-2 gap-6 sm:gap-10">
+                        <i data-lucide="user" class="w-12 h-12 sm:w-14 sm:h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-12 h-12 sm:w-14 sm:h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-12 h-12 sm:w-14 sm:h-14 text-green-500 opacity-80"></i>
+                        <i data-lucide="user" class="w-12 h-12 sm:w-14 sm:h-14 text-green-500 opacity-80"></i>
                     </div>
                 </div>
             </section>
 
             <!-- g) Revolutionary UX -->
-            <section class="reveal flex flex-col lg:flex-row items-center gap-20">
-                <div class="flex-1">
+            <section class="reveal flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-20">
+                <div class="flex-1 min-w-0">
                     <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Complex logic. Simple organization</p>
-                    <h2 class="text-4xl lg:text-5xl font-medium mb-8">Revolutionary UX: The "Google Drive" of Alpha</h2>
-                    <p class="text-zinc-400 text-lg leading-relaxed font-light">Stop digging through fragmented folders and desktop files. TradingBoard.ai introduces a familiar, cloud-native interface to manage hundreds of strategies.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-medium mb-6 lg:mb-8">Revolutionary UX: The "Google Drive" of Alpha</h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed font-light">Stop digging through fragmented folders and desktop files. TradingBoard.ai introduces a familiar, cloud-native interface to manage hundreds of strategies.</p>
                 </div>
-                <div class="feature-box" style="--glow-color: var(--tb-blue)">
-                    <div class="relative w-full max-w-[520px] lg:max-w-[580px] min-h-[300px] lg:min-h-[340px]">
-                        <div class="absolute top-0 left-0 w-72 lg:w-80 aspect-video cursor-pointer z-0 shadow-xl" onclick="openLightbox('assets/ux-screenshot.png?v=2')">
+                <div class="feature-box w-full max-w-full lg:max-w-[520px]" style="--glow-color: var(--tb-blue)">
+                    <div class="relative w-full max-w-[100%] sm:max-w-[400px] lg:max-w-[520px] mx-auto min-h-[240px] sm:min-h-[280px] lg:min-h-[340px]">
+                        <div class="absolute top-0 left-0 w-56 sm:w-64 lg:w-80 aspect-video cursor-pointer z-0 shadow-xl" onclick="openLightbox('assets/ux-screenshot.png?v=2')">
                             <img src="assets/ux-screenshot.png?v=2" class="ux-screenshot-box rounded-2xl w-full h-full object-cover" alt="TradingBoard UX">
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <i data-lucide="maximize-2" class="text-[var(--tb-blue)] w-11 h-11 opacity-80 drop-shadow-[0_0_15px_rgba(24,97,217,0.5)]"></i>
+                                <i data-lucide="maximize-2" class="text-[var(--tb-blue)] w-10 h-10 sm:w-11 sm:h-11 opacity-80 drop-shadow-[0_0_15px_rgba(24,97,217,0.5)]"></i>
                             </div>
                         </div>
-                        <div class="absolute bottom-0 right-0 w-72 lg:w-80 aspect-video cursor-pointer z-10 shadow-xl" onclick="openLightbox('assets/ux-screenshot2.png?v=2')">
+                        <div class="absolute bottom-0 right-0 w-56 sm:w-64 lg:w-80 aspect-video cursor-pointer z-10 shadow-xl" onclick="openLightbox('assets/ux-screenshot2.png?v=2')">
                             <img src="assets/ux-screenshot2.png?v=2" class="ux-screenshot-box rounded-2xl w-full h-full object-cover" alt="TradingBoard UX 2">
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <i data-lucide="maximize-2" class="text-[var(--tb-blue)] w-11 h-11 opacity-80 drop-shadow-[0_0_15px_rgba(24,97,217,0.5)]"></i>
+                                <i data-lucide="maximize-2" class="text-[var(--tb-blue)] w-10 h-10 sm:w-11 sm:h-11 opacity-80 drop-shadow-[0_0_15px_rgba(24,97,217,0.5)]"></i>
                             </div>
                         </div>
                     </div>
@@ -310,8 +337,8 @@
             </section>
 
             <!-- Bottom CTA -->
-            <section class="reveal py-32 flex flex-col items-center">
-                <div class="cta-wrapper">
+            <section class="reveal py-20 sm:py-28 lg:py-32 flex flex-col items-center px-4">
+                <div class="cta-wrapper w-full max-w-md">
                     <input type="email" id="cta-email-bottom" placeholder="Enter your email" class="cta-input" required>
                     <button type="button" id="cta-submit-bottom" class="bg-white text-black px-10 py-3.5 rounded-full font-bold hover:bg-zinc-200 transition whitespace-nowrap">
                         Request Early Access
@@ -324,28 +351,28 @@
 
     <!-- CONTACT VIEW -->
     <div id="contact-page" class="page-view">
-        <header class="page-header px-10 lg:px-24">
+        <header class="page-header px-5 sm:px-8 lg:px-24">
             <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
-                <div class="flex-shrink-0">
-                    <h1 class="hero-h1 mb-8">Let's shape the future<br>of alpha together.</h1>
-                    <p class="hero-p mb-12">
+                <div class="flex-shrink-0 w-full max-w-lg">
+                    <h1 class="hero-h1 mb-6 lg:mb-8">Let's shape the future<br>of alpha together.</h1>
+                    <p class="hero-p mb-8 lg:mb-12">
                         Whether you're a mentor looking to scale, an expert trader, or a potential partner—we're listening.
                     </p>
 
-                    <form id="contact-form" class="space-y-6 max-w-lg mb-10">
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <input type="text" name="name" id="contact-name" placeholder="Name" required class="form-input bg-zinc-900/50 border-zinc-800 p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] w-full">
-                            <input type="email" name="email" id="contact-email" placeholder="Email" required class="form-input bg-zinc-900/50 border-zinc-800 p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] w-full">
+                    <form id="contact-form" class="space-y-5 sm:space-y-6 max-w-lg mb-10">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input type="text" name="name" id="contact-name" placeholder="Name" required class="form-input bg-zinc-900/50 border-zinc-800 p-3.5 sm:p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] w-full min-h-[48px]">
+                            <input type="email" name="email" id="contact-email" placeholder="Email" required class="form-input bg-zinc-900/50 border-zinc-800 p-3.5 sm:p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] w-full min-h-[48px]">
                         </div>
-                        <select name="type" id="contact-type" class="w-full bg-zinc-900/50 border border-zinc-800 p-3 rounded-lg text-zinc-400 outline-none focus:border-[var(--tb-blue)]">
+                        <select name="type" id="contact-type" class="w-full bg-zinc-900/50 border border-zinc-800 p-3.5 sm:p-3 rounded-lg text-zinc-400 outline-none focus:border-[var(--tb-blue)] min-h-[48px]">
                             <option value="Individual Trader">Individual Trader</option>
                             <option value="Trading Mentor">Trading Mentor</option>
                             <option value="Institutional Partner">Institutional Partner</option>
                             <option value="Investor">Investor</option>
                         </select>
-                        <textarea name="message" id="contact-message" placeholder="Message (Optional)" rows="4" class="w-full bg-zinc-900/50 border border-zinc-800 p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] form-input"></textarea>
+                        <textarea name="message" id="contact-message" placeholder="Message (Optional)" rows="4" class="w-full bg-zinc-900/50 border border-zinc-800 p-3.5 sm:p-3 rounded-lg text-white outline-none focus:border-[var(--tb-blue)] form-input min-h-[120px]"></textarea>
                         <p id="contact-form-message" class="text-sm text-zinc-400 hidden"></p>
-                        <button type="submit" id="contact-submit" class="bg-white text-black py-4 px-10 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition">Send Message</button>
+                        <button type="submit" id="contact-submit" class="bg-white text-black py-4 px-10 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition min-h-[48px] w-full sm:w-auto">Send Message</button>
                     </form>
 
                     <p class="text-zinc-400 text-lg">
@@ -357,7 +384,7 @@
         </header>
     </div>
 
-    <footer class="py-12 border-t border-zinc-900 text-center text-zinc-600 text-[10px] tracking-[0.3em] uppercase relative z-10">
+    <footer class="py-8 sm:py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase relative z-10 px-4">
         © <span id="footer-year"></span> TradingBoard.ai | Next-Gen Systematic Alpha
     </footer>
 
