@@ -197,6 +197,43 @@
             #lightbox { padding: 12px; }
             #lightbox-img { max-height: 80vh; }
         }
+
+        /* Mobile nav menu */
+        .nav-menu-btn { display: none; }
+        .nav-desktop-links { display: flex; }
+        .nav-mobile-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            z-index: 40;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 5rem;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+        .nav-mobile-panel a {
+            font-size: 1.125rem;
+            font-weight: 600;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        @media (max-width: 767px) {
+            .nav-menu-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; background: none; border: none; color: #a1a1aa; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+            .nav-menu-btn:hover { color: #fff; }
+            .nav-desktop-links { display: none !important; }
+            .nav-icon svg { display: block; width: 100%; height: 100%; }
+        }
+        @media (min-width: 768px) {
+            .nav-mobile-panel { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -205,15 +242,29 @@
 
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 lg:px-10 py-4 lg:py-6 bg-black/10 backdrop-blur-sm">
-        <a href="#home" class="flex items-center cursor-pointer min-h-[44px] min-w-[44px] items-center justify-center -m-2 p-2" aria-label="Home">
+        <button type="button" class="nav-menu-btn order-first md:order-none" id="nav-menu-btn" aria-label="Open menu">
+            <span class="nav-icon nav-icon-menu w-6 h-6 inline-block" id="nav-menu-icon" aria-hidden="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </span>
+            <span class="nav-icon nav-icon-close w-6 h-6 inline-block hidden" id="nav-close-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+            </span>
+        </button>
+        <a href="#home" class="flex items-center cursor-pointer min-h-[44px] min-w-[44px] items-center justify-center -m-2 p-2 ml-auto md:ml-0" aria-label="Home">
             <img src="assets/logo.png" alt="TradingBoard Logo" class="h-6 md:h-7 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling?.classList.remove('hidden');" />
             <span class="text-xl font-semibold hidden">TradingBoard.ai</span>
         </a>
-        <div class="flex items-center gap-6 lg:gap-10 ml-auto">
+        <div class="nav-desktop-links hidden md:flex items-center gap-6 lg:gap-10 ml-auto">
             <a href="#contact" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Contact</a>
             <a href="#login" class="text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition min-h-[44px] flex items-center px-2">Login</a>
         </div>
     </nav>
+
+    <!-- Mobile menu panel -->
+    <div class="nav-mobile-panel" id="nav-mobile-panel" aria-hidden="true">
+        <a href="#contact" class="nav-mobile-link text-zinc-400 hover:text-white transition">Contact</a>
+        <a href="#login" class="nav-mobile-link text-zinc-400 hover:text-white transition">Login</a>
+    </div>
 
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
@@ -492,6 +543,33 @@
         document.getElementById('footer-year').textContent = new Date().getFullYear();
 
         if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+
+        /* Mobile nav menu toggle */
+        (function() {
+            var btn = document.getElementById('nav-menu-btn');
+            var panel = document.getElementById('nav-mobile-panel');
+            var menuIcon = document.getElementById('nav-menu-icon');
+            var closeIcon = document.getElementById('nav-close-icon');
+            if (!btn || !panel) return;
+            function openMenu() {
+                panel.style.display = 'flex';
+                panel.setAttribute('aria-hidden', 'false');
+                if (menuIcon) { menuIcon.classList.add('hidden'); menuIcon.setAttribute('aria-hidden', 'true'); }
+                if (closeIcon) { closeIcon.classList.remove('hidden'); closeIcon.setAttribute('aria-hidden', 'false'); }
+            }
+            function closeMenu() {
+                panel.style.display = 'none';
+                panel.setAttribute('aria-hidden', 'true');
+                if (menuIcon) { menuIcon.classList.remove('hidden'); menuIcon.setAttribute('aria-hidden', 'false'); }
+                if (closeIcon) { closeIcon.classList.add('hidden'); closeIcon.setAttribute('aria-hidden', 'true'); }
+            }
+            btn.addEventListener('click', function() {
+                if (panel.style.display === 'flex') closeMenu(); else openMenu();
+            });
+            panel.querySelectorAll('a').forEach(function(a) {
+                a.addEventListener('click', closeMenu);
+            });
+        })();
 
         function handleScroll() {
             var obs = new IntersectionObserver(function(entries) {
