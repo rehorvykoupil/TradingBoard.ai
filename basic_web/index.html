@@ -80,6 +80,9 @@
         @media (min-width: 1024px) {
             .hero-h1 { white-space: nowrap; min-width: 16ch; }
         }
+        .hero-h1-validation {
+            white-space: normal;
+        }
         .hero-text-col { overflow: visible; }
         @media (min-width: 1024px) {
             .hero-text-col { min-width: 48rem !important; flex-shrink: 0 !important; }
@@ -202,6 +205,60 @@
         }
         .login-box a:hover { color: var(--tb-blue); }
 
+        /* Validation form */
+        .form-input-custom {
+            background: rgba(24, 24, 27, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            width: 100%;
+            color: white;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .form-input-custom:focus {
+            border-color: var(--tb-blue);
+        }
+
+        .scale-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .scale-item {
+            flex: 1;
+            text-align: center;
+        }
+        .scale-item input { display: none; }
+        .scale-item label {
+            display: block;
+            padding: 10px 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .scale-item input:checked + label {
+            background: var(--tb-blue);
+            border-color: white;
+            color: white;
+        }
+
+        .tier-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 16px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .tier-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
         /* Mobile: touch targets and tap highlight */
         @media (max-width: 1023px) {
             .ux-screenshot-box { -webkit-tap-highlight-color: rgba(24, 97, 217, 0.2); }
@@ -278,6 +335,230 @@
     <div class="nav-mobile-panel" id="nav-mobile-panel" aria-hidden="true">
         <a href="#contact" class="nav-mobile-link text-zinc-400 hover:text-white transition">Contact</a>
         <a href="#login" class="nav-mobile-link text-zinc-400 hover:text-white transition">Login</a>
+    </div>
+
+    <!-- VALIDATION VIEW -->
+    <div id="validation-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24">
+            <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
+                <div class="max-w-4xl">
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Strategic Validation</p>
+                    <h1 class="hero-h1 hero-h1-validation mb-4">The Future of Algorithmic Trading is Cloud-Native</h1>
+                    <p class="hero-p mb-12">
+                        Helping the "Old Guard" of TradeStation and MultiCharts migrate to the next generation of execution.
+                    </p>
+                </div>
+                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[280px] sm:h-[360px] lg:h-[500px] mt-8 lg:mt-0" data-cube="validation"></div>
+            </div>
+
+            <!-- Presentation Section -->
+            <section class="reveal mb-20">
+                <div class="max-w-4xl mx-auto mb-4">
+                    <p class="text-xs font-semibold tracking-[0.25em] uppercase text-zinc-500">Introduction Presentation Preview</p>
+                </div>
+                <div class="relative max-w-5xl mx-auto group cursor-pointer" onclick="window.open('assets/TradingBoard.ai-Intro.pdf', '_blank')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60"></div>
+                    <img src="assets/TradingBoard.ai-Intro-preview.png"
+                         class="w-full h-[360px] sm:h-[400px] object-cover rounded-3xl border border-white/10 transition group-hover:border-white/30"
+                         alt="Introduction Presentation Preview">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                        <div class="bg-white/10 backdrop-blur-xl p-6 rounded-full border border-white/20 mb-4 group-hover:scale-110 transition">
+                            <i data-lucide="play" class="w-12 h-12"></i>
+                        </div>
+                        <button type="button" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest">
+                            OPEN INTRODUCTION PRESENTATION (FULL SCREEN)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strategic Validation Form -->
+            <section class="reveal max-w-3xl mx-auto pb-20">
+                <div class="mb-10">
+                    <h2 class="text-3xl sm:text-4xl font-medium mb-4">Help Us Build the Right Tool</h2>
+                    <p class="text-zinc-400 font-light">
+                        We value your expertise. Your answers will directly influence the final architecture of TradingBoard.ai.
+                    </p>
+                </div>
+
+                <form id="validation-form" class="space-y-12">
+                    <!-- Q1 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            1. Core Concept<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                Does migrating the features and logic of platforms like MultiCharts/TradeStation to a cloud-native environment make sense to you?
+                                From your perspective, is this the direction traders are looking to take?
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
+                            <span>1 - Definitely No</span>
+                            <span>10 - Definitely Yes</span>
+                        </div>
+                        <div class="scale-container">
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-1" value="1"><label for="q1-1">1</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-2" value="2"><label for="q1-2">2</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-3" value="3"><label for="q1-3">3</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-4" value="4"><label for="q1-4">4</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-5" value="5"><label for="q1-5">5</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-6" value="6"><label for="q1-6">6</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-7" value="7"><label for="q1-7">7</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-8" value="8"><label for="q1-8">8</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-9" value="9"><label for="q1-9">9</label></div>
+                            <div class="scale-item"><input type="radio" name="q1" id="q1-10" value="10"><label for="q1-10">10</label></div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <input type="radio" name="q1" id="q1-na" value="na">
+                            <label for="q1-na" class="text-zinc-500 text-sm">I am not able to say</label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            2. Red Flags<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                In the solution presented, do you see any "deal-breakers" or hurdles that would prevent a trader from
+                                switching to this platform, assuming 99% code compatibility?
+                            </span>
+                        </label>
+                        <textarea id="validation-q2" class="form-input-custom h-32" placeholder="Your thoughts..."></textarea>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            3. Product-Market Fit<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                If this platform were available tomorrow, would it make sense for you to use it personally as a trader?
+                                (Additionally, if you are a mentor, do you see its value as a tool (Mentor Hub) for your academy?)
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
+                            <span>1 - Definitely No</span>
+                            <span>10 - Definitely Yes</span>
+                        </div>
+                        <div class="scale-container">
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-1" value="1"><label for="q3-1">1</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-2" value="2"><label for="q3-2">2</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-3" value="3"><label for="q3-3">3</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-4" value="4"><label for="q3-4">4</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-5" value="5"><label for="q3-5">5</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-6" value="6"><label for="q3-6">6</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-7" value="7"><label for="q3-7">7</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-8" value="8"><label for="q3-8">8</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-9" value="9"><label for="q3-9">9</label></div>
+                            <div class="scale-item"><input type="radio" name="q3" id="q3-10" value="10"><label for="q3-10">10</label></div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <input type="radio" name="q3" id="q3-na" value="na">
+                            <label for="q3-na" class="text-zinc-500 text-sm">I am not able to say</label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            4. Message to the Founders<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                Do you want to write a message to the founding team?
+                            </span>
+                        </label>
+                        <textarea id="validation-q4" class="form-input-custom h-32" placeholder="Write to the team..."></textarea>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <input type="text" id="validation-first-name" placeholder="Name" class="form-input-custom">
+                        <input type="text" id="validation-last-name" placeholder="Surname" class="form-input-custom">
+                        <div class="md:col-span-2">
+                            <input type="email" id="validation-email" placeholder="Email" class="form-input-custom" required>
+                        </div>
+                    </div>
+
+                    <p id="validation-form-message" class="text-sm text-zinc-400 hidden"></p>
+
+                    <button type="submit" id="validation-submit"
+                            class="w-full bg-white text-black py-5 rounded-full font-bold uppercase tracking-[0.2em] text-sm hover:bg-zinc-200 transition">
+                        SUBMIT FEEDBACK &amp; JOIN Beta testing
+                    </button>
+                </form>
+            </section>
+
+            <!-- Rewards Section -->
+            <section class="reveal max-w-4xl mx-auto pb-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl sm:text-4xl font-medium mb-4">Rewards</h2>
+                    <p class="text-zinc-400 max-w-2xl">
+                        We are looking for traders to help us to shape our product. By participating in this validation,
+                        you enter our priority leaderboard for the following tiers:
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-blue)] font-bold uppercase text-xs mb-2">ALL</h3>
+                        <p class="text-sm text-white">Access to the Private Betas. Be the first to trade on the engine.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-zinc-300 font-bold uppercase text-xs mb-2">TOP 100</h3>
+                        <p class="text-sm text-white">Founding Member Status + 50% Discount (3 years).</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-zinc-300 font-bold uppercase text-xs mb-2">TOP 50</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years).</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-yellow)] font-bold uppercase text-xs mb-2">TOP 25</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-yellow)] font-bold uppercase text-xs mb-2">TOP 10</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-amber-400 font-bold uppercase text-xs mb-2">TOP 5 (Gold)</h3>
+                        <p class="text-sm text-white">Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card md:col-span-2 lg:col-span-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-500/50">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div>
+                                <h3 class="text-blue-400 font-bold uppercase text-xs mb-2">TOP 1 (Platinum)</h3>
+                                <p class="text-sm sm:text-lg text-white">
+                                    Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.
+                                </p>
+                            </div>
+                            <i data-lucide="award" class="w-10 h-10 text-blue-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leaderboard status (shows after submission) -->
+            <section id="validation-success" class="reveal max-w-3xl mx-auto pb-24 hidden">
+                <div class="border border-zinc-800 rounded-2xl bg-zinc-900/70 p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-white">Success! Feedback submitted.</h2>
+                    <p class="text-sm text-zinc-300">
+                        <span class="font-medium">Rank:</span> #20
+                    </p>
+                    <p class="text-sm text-zinc-300">
+                        <span class="font-medium">Current Standing:</span> 50% Discount Tier.
+                        <span class="block mt-1">
+                            <span class="font-medium">Next Milestone:</span> Only 10 spots to hit the 75% Off + 1,000 Credits bracket.
+                        </span>
+                    </p>
+                    <p class="text-sm text-zinc-300">
+                        Don’t get bumped! Rankings are live. If others refer more members, your rank will drop.
+                        To climb the leaderboard and protect your tier, invite another expert to help us validate the product.
+                    </p>
+                    <div class="mt-4 p-4 rounded-xl bg-black/40 border border-zinc-800">
+                        <p class="text-xs font-semibold text-zinc-400 uppercase tracking-[0.18em] mb-1">Your unique invite link</p>
+                        <p class="text-sm text-white font-mono break-all">tradingboard.ai/v/unique-id-123</p>
+                        <p class="text-xs text-zinc-500 mt-2">(1 referral = +50 positions)</p>
+                    </div>
+                </div>
+            </section>
+        </header>
     </div>
 
     <!-- Lightbox -->
@@ -526,10 +807,14 @@
             var hash = (location.hash || '').replace(/^#/, '');
             if (hash === 'contact') return 'contact';
             if (hash === 'login') return 'login';
+            if (hash === 'validation') return 'validation';
             return 'home';
         }
         function showPage(pageId) {
-            var desiredHash = pageId === 'contact' ? '#contact' : (pageId === 'login' ? '#login' : '#home');
+            var desiredHash = '#home';
+            if (pageId === 'contact') desiredHash = '#contact';
+            else if (pageId === 'login') desiredHash = '#login';
+            else if (pageId === 'validation') desiredHash = '#validation';
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
             var el = document.getElementById(pageId + '-page');
@@ -541,8 +826,11 @@
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
         var initialPage = getPageFromHash();
+        if (!location.hash || location.hash === '#') {
+            location.hash = '#home';
+            initialPage = 'home';
+        }
         showPage(initialPage);
-        if (!location.hash || location.hash === '#') location.hash = '#home';
 
         function openLightbox(src) {
             var lb = document.getElementById('lightbox');
@@ -564,18 +852,22 @@
             var panel = document.getElementById('nav-mobile-panel');
             var menuIcon = document.getElementById('nav-menu-icon');
             var closeIcon = document.getElementById('nav-close-icon');
-            if (!btn || !panel) return;
+            if (!btn || !panel || !menuIcon || !closeIcon) return;
             function openMenu() {
                 panel.style.display = 'flex';
                 panel.setAttribute('aria-hidden', 'false');
-                if (menuIcon) { menuIcon.classList.add('hidden'); menuIcon.setAttribute('aria-hidden', 'true'); }
-                if (closeIcon) { closeIcon.classList.remove('hidden'); closeIcon.setAttribute('aria-hidden', 'false'); }
+                menuIcon.classList.add('hidden');
+                menuIcon.setAttribute('aria-hidden', 'true');
+                closeIcon.classList.remove('hidden');
+                closeIcon.setAttribute('aria-hidden', 'false');
             }
             function closeMenu() {
                 panel.style.display = 'none';
                 panel.setAttribute('aria-hidden', 'true');
-                if (menuIcon) { menuIcon.classList.remove('hidden'); menuIcon.setAttribute('aria-hidden', 'false'); }
-                if (closeIcon) { closeIcon.classList.add('hidden'); closeIcon.setAttribute('aria-hidden', 'true'); }
+                closeIcon.classList.add('hidden');
+                closeIcon.setAttribute('aria-hidden', 'true');
+                menuIcon.classList.remove('hidden');
+                menuIcon.setAttribute('aria-hidden', 'false');
             }
             btn.addEventListener('click', function() {
                 if (panel.style.display === 'flex') closeMenu(); else openMenu();
@@ -629,6 +921,122 @@
             var email = (document.getElementById('cta-email-bottom') || {}).value;
             submitEarlyAccess(email, 'cta-submit-bottom', ['cta-message-bottom']);
         });
+
+        // Validation presentation lightbox
+        (function() {
+            var slides = [
+                "https://images.unsplash.com/photo-1642790103517-1812dfb5fa5d?q=80&w=1600",
+                "https://images.unsplash.com/photo-1611974717483-585805d76d65?q=80&w=1600",
+                "https://images.unsplash.com/photo-1551288049-bbbda536339a?q=80&w=1600"
+            ];
+            var current = 0;
+            var lb = document.getElementById('validation-lightbox');
+            var img = document.getElementById('validation-lightbox-img');
+            var counter = document.getElementById('validation-slide-counter');
+            if (!lb || !img || !counter) return;
+
+            window.openValidationPresentation = function() {
+                current = 0;
+                update();
+                lb.style.display = 'flex';
+            };
+            window.closeValidationLightbox = function() {
+                lb.style.display = 'none';
+            };
+            window.changeValidationSlide = function(dir) {
+                if (!slides.length) return;
+                current = (current + dir + slides.length) % slides.length;
+                update();
+            };
+            function update() {
+                img.src = slides[current] || slides[0];
+                counter.textContent = "Slide " + (current + 1) + " / " + slides.length;
+            }
+        })();
+
+        // Validation page form
+        (function() {
+            var form = document.getElementById('validation-form');
+            if (!form) return;
+            var emailInput = document.getElementById('validation-email');
+            var q2Input = document.getElementById('validation-q2');
+            var q4Input = document.getElementById('validation-q4');
+            var firstInput = document.getElementById('validation-first-name');
+            var lastInput = document.getElementById('validation-last-name');
+            var btn = document.getElementById('validation-submit');
+            var msgEl = document.getElementById('validation-form-message');
+            var successBox = document.getElementById('validation-success');
+
+            function getScale(name) {
+                var checked = document.querySelector('input[name="' + name + '"]:checked');
+                return checked ? checked.value : '';
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var email = (emailInput && emailInput.value || '').trim();
+                if (!email) {
+                    if (msgEl) {
+                        msgEl.textContent = 'Please enter your email.';
+                        msgEl.classList.remove('hidden');
+                        msgEl.classList.add('text-red-400');
+                    }
+                    return;
+                }
+
+                var notesParts = [];
+                var q1 = getScale('q1');
+                var q2 = (q2Input && q2Input.value || '').trim();
+                var q3 = getScale('q3');
+                var q4 = (q4Input && q4Input.value || '').trim();
+                var first = (firstInput && firstInput.value || '').trim();
+                var last = (lastInput && lastInput.value || '').trim();
+
+                if (first || last) notesParts.push('Name: ' + [first, last].filter(Boolean).join(' '));
+                notesParts.push('Email (validation form): ' + email);
+                if (q1) notesParts.push('Q1 (Core Concept): ' + q1);
+                if (q2) { notesParts.push('Q2 (Red Flags):'); notesParts.push(q2); }
+                if (q3) notesParts.push('Q3 (Product-Market Fit): ' + q3);
+                if (q4) { notesParts.push('Q4 (Message to founders):'); notesParts.push(q4); }
+
+                var notes = notesParts.join('\n');
+
+                if (msgEl) {
+                    msgEl.classList.add('hidden');
+                    msgEl.classList.remove('text-red-400');
+                }
+                if (btn) {
+                    btn.classList.add('btn-loading');
+                    btn.disabled = true;
+                }
+                fetch(FORM_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'validation', email: email, notes: notes })
+                }).then(function(r) {
+                    if (r.ok) {
+                        if (successBox) successBox.classList.remove('hidden');
+                        if (msgEl) {
+                            msgEl.textContent = 'Thanks for your feedback. Check your inbox for your current tier.';
+                            msgEl.classList.remove('hidden', 'text-red-400');
+                        }
+                    } else {
+                        return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
+                    }
+                }).catch(function(err) {
+                    if (msgEl) {
+                        msgEl.textContent = err.message || 'Something went wrong. Please try again.';
+                        msgEl.classList.remove('hidden');
+                        msgEl.classList.add('text-red-400');
+                    }
+                }).finally(function() {
+                    if (btn) {
+                        btn.classList.remove('btn-loading');
+                        btn.disabled = false;
+                    }
+                });
+            });
+        })();
 
         document.getElementById('contact-form').addEventListener('submit', function(e) {
             e.preventDefault();
