@@ -20,6 +20,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
@@ -269,6 +270,103 @@
             #lightbox-img { max-height: 80vh; }
         }
 
+        /* PDF Lightbox */
+        #pdf-lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1001;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        #pdf-lightbox.active { display: flex; }
+        #pdf-lightbox-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            min-height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        #pdf-lightbox-close:hover { background: rgba(255,255,255,0.25); }
+        #pdf-lightbox-fullscreen {
+            position: absolute;
+            top: 12px;
+            right: 64px;
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            min-height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        #pdf-lightbox-fullscreen:hover { background: rgba(255,255,255,0.25); }
+        #pdf-lightbox-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+        }
+        #pdf-lightbox-canvas-wrap {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #pdf-lightbox-canvas-wrap canvas { max-width: 100%; height: auto; display: block; }
+        #pdf-lightbox-prev, #pdf-lightbox-next {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            min-height: 52px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+        }
+        #pdf-lightbox-prev:hover, #pdf-lightbox-next:hover { background: rgba(255,255,255,0.25); }
+        #pdf-lightbox-prev:disabled, #pdf-lightbox-next:disabled { opacity: 0.4; cursor: not-allowed; }
+        #pdf-lightbox-counter { margin-top: 12px; font-size: 14px; color: rgba(255,255,255,0.7); }
+        @media (max-width: 639px), (max-height: 500px) {
+            #pdf-lightbox-close { top: 8px; right: 8px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+            #pdf-lightbox-fullscreen { top: 8px; right: 56px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+            #pdf-lightbox-prev, #pdf-lightbox-next { width: 44px; height: 44px; min-width: 44px; min-height: 44px; margin: 0 4px; }
+        }
+
         /* Mobile nav menu */
         .nav-menu-btn { display: none; }
         .nav-desktop-links { display: flex; }
@@ -352,7 +450,7 @@
 
             <!-- Presentation Section -->
             <section class="reveal max-w-3xl mx-auto mb-20">
-                <div class="relative max-w-3xl mx-auto group cursor-pointer" onclick="window.open('assets/TradingBoard.ai-Intro.pdf', '_blank')">
+                <div class="relative max-w-3xl mx-auto group cursor-pointer" onclick="openPdfLightbox('assets/TradingBoard.ai-Intro.pdf')">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60"></div>
                     <img src="assets/TradingBoard.ai-Intro-preview.png"
                          class="w-full h-[360px] sm:h-[400px] object-cover rounded-3xl border border-white/10 transition group-hover:border-white/30"
@@ -556,6 +654,28 @@
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="TradingBoard HD UI" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- PDF Lightbox (validation presentation) -->
+    <div id="pdf-lightbox" role="dialog" aria-label="Presentation PDF">
+        <button type="button" id="pdf-lightbox-fullscreen" onclick="togglePdfFullscreen()" aria-label="Fullscreen">
+            <i data-lucide="maximize" class="w-5 h-5" id="pdf-fullscreen-icon"></i>
+        </button>
+        <button type="button" id="pdf-lightbox-close" onclick="closePdfLightbox()" aria-label="Close">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div id="pdf-lightbox-content">
+            <button type="button" id="pdf-lightbox-prev" onclick="pdfLightboxPrev()" aria-label="Previous page">
+                <i data-lucide="chevron-left" class="w-8 h-8"></i>
+            </button>
+            <div id="pdf-lightbox-canvas-wrap">
+                <canvas id="pdf-lightbox-canvas"></canvas>
+            </div>
+            <button type="button" id="pdf-lightbox-next" onclick="pdfLightboxNext()" aria-label="Next page">
+                <i data-lucide="chevron-right" class="w-8 h-8"></i>
+            </button>
+        </div>
+        <div id="pdf-lightbox-counter"></div>
     </div>
 
     <!-- HOMEPAGE VIEW -->
@@ -893,6 +1013,158 @@
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
         }
+
+        (function() {
+            var pdfDoc = null;
+            var pdfCurrentPage = 1;
+            var pdfNumPages = 0;
+
+            if (typeof pdfjsLib !== 'undefined') {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            }
+
+            window.openPdfLightbox = function(pdfUrl) {
+                var lb = document.getElementById('pdf-lightbox');
+                var canvas = document.getElementById('pdf-lightbox-canvas');
+                var wrap = document.getElementById('pdf-lightbox-canvas-wrap');
+                var prevBtn = document.getElementById('pdf-lightbox-prev');
+                var nextBtn = document.getElementById('pdf-lightbox-next');
+                var counterEl = document.getElementById('pdf-lightbox-counter');
+                if (!lb || !canvas || !wrap) return;
+                lb.classList.add('active');
+                pdfCurrentPage = 1;
+                pdfDoc = null;
+                if (typeof pdfjsLib === 'undefined') {
+                    counterEl.textContent = 'PDF viewer not loaded.';
+                    return;
+                }
+                counterEl.textContent = 'Loading…';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+                    pdfDoc = pdf;
+                    pdfNumPages = pdf.numPages;
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = pdfNumPages <= 1;
+                    renderPdfPage();
+                    if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+                }).catch(function(err) {
+                    counterEl.textContent = 'Failed to load PDF.';
+                });
+            };
+
+            window.closePdfLightbox = function() {
+                if (isPdfFullscreen()) exitPdfFullscreen();
+                document.getElementById('pdf-lightbox').classList.remove('active');
+                pdfDoc = null;
+            };
+
+            function isPdfFullscreen() {
+                var el = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+                return el && el.id === 'pdf-lightbox';
+            }
+            function requestPdfFullscreen() {
+                var lb = document.getElementById('pdf-lightbox');
+                if (lb.requestFullscreen) return lb.requestFullscreen();
+                if (lb.webkitRequestFullscreen) return lb.webkitRequestFullscreen();
+                if (lb.msRequestFullscreen) return lb.msRequestFullscreen();
+                return Promise.reject();
+            }
+            function exitPdfFullscreen() {
+                if (document.exitFullscreen) return document.exitFullscreen();
+                if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+                if (document.msExitFullscreen) return document.msExitFullscreen();
+                return Promise.resolve();
+            }
+            function updatePdfFullscreenIcon() {
+                var icon = document.getElementById('pdf-fullscreen-icon');
+                if (!icon) return;
+                var full = isPdfFullscreen();
+                icon.setAttribute('data-lucide', full ? 'minimize-2' : 'maximize');
+                if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+            }
+            window.togglePdfFullscreen = function() {
+                if (isPdfFullscreen()) {
+                    exitPdfFullscreen().then(function() { updatePdfFullscreenIcon(); });
+                } else {
+                    requestPdfFullscreen().then(function() {
+                        updatePdfFullscreenIcon();
+                        if (pdfDoc) renderPdfPage();
+                    }).catch(function() {});
+                }
+            };
+
+            function renderPdfPage() {
+                var canvas = document.getElementById('pdf-lightbox-canvas');
+                var wrap = document.getElementById('pdf-lightbox-canvas-wrap');
+                var prevBtn = document.getElementById('pdf-lightbox-prev');
+                var nextBtn = document.getElementById('pdf-lightbox-next');
+                var counterEl = document.getElementById('pdf-lightbox-counter');
+                if (!pdfDoc || !canvas || !wrap) return;
+                prevBtn.disabled = pdfCurrentPage <= 1;
+                nextBtn.disabled = pdfCurrentPage >= pdfNumPages;
+                counterEl.textContent = 'Page ' + pdfCurrentPage + ' of ' + pdfNumPages;
+                pdfDoc.getPage(pdfCurrentPage).then(function(page) {
+                    var baseViewport = page.getViewport({ scale: 1 });
+                    var wrapW = wrap.clientWidth;
+                    var wrapH = wrap.clientHeight;
+                    var scale = Math.min(wrapW / baseViewport.width, wrapH / baseViewport.height);
+                    var dpr = Math.min(window.devicePixelRatio || 1, 4);
+                    var minRenderScale = 3;
+                    var renderScale = Math.max(scale * dpr, minRenderScale);
+                    var viewport = page.getViewport({ scale: scale });
+                    var hiResViewport = page.getViewport({ scale: renderScale });
+                    canvas.width = hiResViewport.width;
+                    canvas.height = hiResViewport.height;
+                    canvas.style.width = viewport.width + 'px';
+                    canvas.style.height = viewport.height + 'px';
+                    var ctx = canvas.getContext('2d');
+                    var renderCtx = { canvasContext: ctx, viewport: hiResViewport };
+                    page.render(renderCtx).promise.then(function() {
+                        wrap.scrollTop = 0;
+                        wrap.scrollLeft = 0;
+                    });
+                }).catch(function() {
+                    counterEl.textContent = 'Error rendering page.';
+                });
+            }
+
+            window.pdfLightboxPrev = function() {
+                if (pdfDoc && pdfCurrentPage > 1) {
+                    pdfCurrentPage--;
+                    renderPdfPage();
+                }
+            };
+            window.pdfLightboxNext = function() {
+                if (pdfDoc && pdfCurrentPage < pdfNumPages) {
+                    pdfCurrentPage++;
+                    renderPdfPage();
+                }
+            };
+
+            document.getElementById('pdf-lightbox').addEventListener('click', function(e) {
+                if (e.target === this || e.target.id === 'pdf-lightbox-content') closePdfLightbox();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('pdf-lightbox').classList.contains('active')) {
+                    if (isPdfFullscreen()) exitPdfFullscreen().then(function() { updatePdfFullscreenIcon(); });
+                    else closePdfLightbox();
+                }
+            });
+            window.addEventListener('resize', function() {
+                if (pdfDoc && document.getElementById('pdf-lightbox').classList.contains('active')) {
+                    renderPdfPage();
+                }
+            });
+            document.addEventListener('fullscreenchange', function() {
+                updatePdfFullscreenIcon();
+                if (pdfDoc && document.getElementById('pdf-lightbox').classList.contains('active')) renderPdfPage();
+            });
+            document.addEventListener('webkitfullscreenchange', function() {
+                updatePdfFullscreenIcon();
+                if (pdfDoc && document.getElementById('pdf-lightbox').classList.contains('active')) renderPdfPage();
+            });
+        })();
 
         document.getElementById('footer-year').textContent = new Date().getFullYear();
 
