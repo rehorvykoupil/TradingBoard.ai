@@ -107,6 +107,7 @@ def get_or_create_participant(
     notes: str | None = None,
     name: str | None = None,
     surname: str | None = None,
+    is_mentor: bool | None = None,
 ) -> tuple[dict, bool]:
     """Ensure a participant doc exists for this email. Returns (data, created). If already exists, do not overwrite."""
     email = (email or "").strip()
@@ -144,6 +145,8 @@ def get_or_create_participant(
         data["name"] = name
     if surname is not None:
         data["surname"] = surname
+    if is_mentor is not None:
+        data["isMentor"] = bool(is_mentor)
     doc_ref.set(data)
     return data, True
 
@@ -203,8 +206,8 @@ def send_form_email(request):
         payload = {}
 
     action = (payload.get("action") or "").strip().lower()
-    if action not in ("earlyaccess", "contact", "validation", "applicants"):
-        return json_response({"error": "Invalid or missing action (use earlyAccess, contact, validation, or applicants)"}, 400)
+    if action not in ("earlyaccess", "contact", "validation", "applicants", "myposition"):
+        return json_response({"error": "Invalid or missing action"}, 400)
 
     if action == "earlyaccess":
         email = (payload.get("email") or "").strip()
@@ -259,18 +262,20 @@ def send_form_email(request):
         ref_code_in = (payload.get("ref") or "").strip().lower()
         name = (payload.get("name") or "").strip()
         surname = (payload.get("surname") or "").strip()
+        is_mentor = payload.get("isMentor") is True
         if not email or not EMAIL_RE.match(email):
             return json_response({"error": "Valid email is required"}, 400)
 
         # Create participant only if new (source V1). Duplicate = ignore, no overwrite.
         participant, created = get_or_create_participant(
-            email, source="V1", notes=notes or None, name=name or None, surname=surname or None
+            email, source="V1", notes=notes or None, name=name or None, surname=surname or None, is_mentor=is_mentor
         )
         db = get_db()
 
-        # Handle referral: if a valid ref code is present, increment referrer's referrals
+        # Handle referral: only if a valid ref code is present AND this is a new participant (first-time submit).
+        # If the email was already submitted (duplicate), do not credit the referrer — ignore.
         referrer_email = None
-        if ref_code_in:
+        if ref_code_in and created:
             try:
                 query = (
                     db.collection("participants")
@@ -298,6 +303,7 @@ def send_form_email(request):
         # Build invite link using user's personal ref code
         user_ref_code = participant.get("refCode") or generate_ref_code()
         invite_link = f"https://tradingboard.ai/?ref={user_ref_code}#validation"
+        myposition_link = f"https://tradingboard.ai/?ref={user_ref_code}#myposition"
 
         # Simple tier text based on rank (static thresholds)
         def tier_for(rank: int | None) -> str:
@@ -319,18 +325,25 @@ def send_form_email(request):
 
         user_tier = tier_for(user_rank)
 
-        success_text = "Success! Feedback Submitted.\n"
+        success_text = "Thank you for your submission!\n\n"
+        success_text += f"Email: {email}\n\n"
+        success_text += "User notes:\n"
+        success_text += (notes or "(none)") + "\n\n"
         if user_rank:
             success_text += f"Your Current Status: Rank #{user_rank} out of ~{total_participants} participants. Current Standing: {user_tier}.\n\n"
         success_text += (
-            "Don’t get bumped! Rankings are live. If others refer more members, your rank will drop. "
+            "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
             "To climb the leaderboard and protect your tier, invite another expert to help us validate the product.\n\n"
             f"Your Unique Invite Link: {invite_link}\n"
-            "(1 referral = +50 positions)\n"
+            "(1 referral = +50 positions)\n\n"
+            f"You can always find your actual position with this link: {myposition_link}\n\n"
+            "Please note: the final ranking will be frozen at the moment of the official beta release.\n\n"
+            "Kind regards,\n"
+            "Your TradingBoard.ai team\n"
         )
 
         body_lines = [
-            "Validation feedback submission (V1):",
+            "Submission:",
             f"Email: {email}",
         ]
         if notes:
@@ -351,7 +364,7 @@ def send_form_email(request):
             if created:
                 send_email_to(
                     recipient=email,
-                    subject="[TradingBoard.ai] Thanks for your validation feedback",
+                    subject="[TradingBoard.ai] Thanks for your submission",
                     body_text=success_text,
                 )
 
@@ -372,6 +385,51 @@ def send_form_email(request):
                 except Exception:
                     pass
             return json_response({"success": True}, 200)
+        except Exception as e:
+            return json_response({"error": "Server error", "detail": str(e)}, 500)
+
+    if action == "myposition":
+        ref_code_in = (payload.get("ref") or "").strip().lower()
+        if not ref_code_in:
+            return json_response({"error": "Missing ref (referral code)"}, 400)
+        db = get_db()
+        try:
+            query = (
+                db.collection("participants")
+                .where("refCode", "==", ref_code_in)
+                .limit(1)
+            )
+            snap = None
+            for s in query.stream():
+                snap = s
+                break
+            if not snap:
+                return json_response({"error": "Invalid or unknown referral code"}, 404)
+            d = snap.to_dict() or {}
+            email = d.get("email") or snap.id
+            ranks = compute_ranks()
+            rank = ranks.get(email)
+            total = len(ranks) or 0
+            def tier_for(r):
+                if not r: return "—"
+                if r <= 1: return "Platinum (Top 1)"
+                if r <= 5: return "Gold (Top 5)"
+                if r <= 10: return "Top 10"
+                if r <= 25: return "Top 25"
+                if r <= 50: return "Top 50"
+                if r <= 100: return "Top 100"
+                return "Early supporter tier"
+            return json_response({
+                "email": email,
+                "name": d.get("name") or "",
+                "surname": d.get("surname") or "",
+                "source": d.get("source") or "",
+                "notes": d.get("notes") or "",
+                "isMentor": bool(d.get("isMentor")),
+                "rank": rank,
+                "totalParticipants": total,
+                "tier": tier_for(rank),
+            }, 200)
         except Exception as e:
             return json_response({"error": "Server error", "detail": str(e)}, 500)
 

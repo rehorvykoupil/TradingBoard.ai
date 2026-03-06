@@ -342,28 +342,16 @@
         <header class="page-header px-5 sm:px-8 lg:px-24">
             <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
                 <div class="max-w-4xl">
-                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Strategic Validation</p>
-                    <h1 class="hero-h1 hero-h1-validation mb-4">The Future of Algorithmic Trading is Cloud-Native</h1>
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Feedback and beta testing</p>
+                    <h1 class="hero-h1 hero-h1-validation mb-4">Help Us Build the Right Tool</h1>
                     <p class="hero-p mb-12">
-                        Helping the "Old Guard" of TradeStation and MultiCharts migrate to the next generation of execution.
+                        We value your expertise. Briefly review the introduction presentation, answer 4 strategic questions, and submit.
                     </p>
                 </div>
-                <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[280px] sm:h-[360px] lg:h-[500px] mt-8 lg:mt-0" data-cube="validation"></div>
             </div>
-
-            <!-- Help Us Build intro (above presentation) -->
-            <section class="reveal max-w-3xl mx-auto mb-12">
-                <h2 class="text-3xl sm:text-4xl font-medium mb-4">Help Us Build the Right Tool</h2>
-                <p class="text-zinc-400 font-light">
-                    We value your expertise. Briefly review the introduction presentation, answer 4 strategic questions, and submit.
-                </p>
-            </section>
 
             <!-- Presentation Section -->
             <section class="reveal max-w-3xl mx-auto mb-20">
-                <div class="mb-4">
-                    <p class="text-xs font-semibold tracking-[0.25em] uppercase text-zinc-500">Introduction Presentation Preview</p>
-                </div>
                 <div class="relative max-w-3xl mx-auto group cursor-pointer" onclick="window.open('assets/TradingBoard.ai-Intro.pdf', '_blank')">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60"></div>
                     <img src="assets/TradingBoard.ai-Intro-preview.png"
@@ -388,8 +376,7 @@
                         <label class="block text-xl font-medium mb-4">
                             Question 1: Core Concept<br>
                             <span class="text-base font-normal text-zinc-300">
-                                Does migrating the features and logic of platforms like MultiCharts/TradeStation to a cloud-native environment make sense to you?
-                                From your perspective, is this the direction traders are looking to take?
+                                Does migrating the features and logic of desktop platforms like MultiCharts/TradeStation/NinjaTrader/Metatrader to a cloud-native environment make sense to you? From your perspective, is this the right direction?
                             </span>
                         </label>
                         <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
@@ -454,6 +441,10 @@
                         <div class="mt-4 flex items-center gap-2">
                             <input type="radio" name="q3" id="q3-na" value="na">
                             <label for="q3-na" class="text-zinc-500 text-sm">I am not able to say</label>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <input type="checkbox" id="validation-mentor" name="mentor" value="yes">
+                            <label for="validation-mentor" class="text-zinc-400 text-sm">I am a mentor</label>
                         </div>
                     </div>
 
@@ -825,6 +816,31 @@
         </header>
     </div>
 
+    <!-- MY POSITION (clean page: email, submitted data, current rank) -->
+    <div id="myposition-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24 min-h-screen flex items-center justify-center">
+            <div class="max-w-xl mx-auto w-full text-center">
+                <h1 class="text-2xl sm:text-3xl font-semibold mb-8">Your position</h1>
+                <div id="myposition-status" class="text-sm text-zinc-400 mb-4">Loading...</div>
+                <div id="myposition-content" class="hidden text-left space-y-6 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+                    <div>
+                        <div class="text-xs uppercase tracking-wider text-zinc-500 mb-1">Email</div>
+                        <div id="myposition-email" class="text-zinc-200 font-medium"></div>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wider text-zinc-500 mb-1">Current rank</div>
+                        <div id="myposition-rank" class="text-2xl font-semibold text-[var(--tb-blue)]"></div>
+                        <div id="myposition-tier" class="text-sm text-zinc-400 mt-1"></div>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wider text-zinc-500 mb-1">Submitted data</div>
+                        <div id="myposition-data" class="text-sm text-zinc-300 whitespace-pre-wrap font-mono"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
     <footer class="py-8 sm:py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase relative z-10 px-4">
         © <span id="footer-year"></span> TradingBoard.ai | Next-Gen Systematic Alpha
     </footer>
@@ -839,6 +855,7 @@
             if (hash === 'login') return 'login';
             if (hash === 'validation') return 'validation';
             if (hash === 'applicants') return 'applicants';
+            if (hash === 'myposition') return 'myposition';
             return 'home';
         }
         function showPage(pageId) {
@@ -847,6 +864,7 @@
             else if (pageId === 'login') desiredHash = '#login';
             else if (pageId === 'validation') desiredHash = '#validation';
             else if (pageId === 'applicants') desiredHash = '#applicants';
+            else if (pageId === 'myposition') desiredHash = '#myposition';
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
             var el = document.getElementById(pageId + '-page');
@@ -856,6 +874,7 @@
             if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
             if (typeof resizeCubes === 'function') resizeCubes();
             if (pageId === 'applicants' && typeof loadApplicants === 'function') loadApplicants();
+            if (pageId === 'myposition' && typeof loadMyPosition === 'function') loadMyPosition();
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
         var initialPage = getPageFromHash();
@@ -1029,12 +1048,14 @@
                 var q4 = (q4Input && q4Input.value || '').trim();
                 var first = (firstInput && firstInput.value || '').trim();
                 var last = (lastInput && lastInput.value || '').trim();
+                var isMentor = document.getElementById('validation-mentor') && document.getElementById('validation-mentor').checked;
 
                 if (first || last) notesParts.push('Name: ' + [first, last].filter(Boolean).join(' '));
                 notesParts.push('Email (validation form): ' + email);
                 if (q1) notesParts.push('Q1 (Core Concept): ' + q1);
                 if (q2) { notesParts.push('Q2 (Red Flags):'); notesParts.push(q2); }
                 if (q3) notesParts.push('Q3 (Product-Market Fit): ' + q3);
+                if (isMentor) notesParts.push('I am a mentor: Yes');
                 if (q4) { notesParts.push('Q4 (Message to founders):'); notesParts.push(q4); }
 
                 var notes = notesParts.join('\n');
@@ -1050,7 +1071,7 @@
                 fetch(FORM_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'validation', email: email, notes: notes, ref: getReferralCode(), name: first, surname: last })
+                    body: JSON.stringify({ action: 'validation', email: email, notes: notes, ref: getReferralCode(), name: first, surname: last, isMentor: isMentor })
                 }).then(function(r) {
                     return r.text().then(function(text) {
                         var d;
@@ -1148,6 +1169,52 @@
                     statusEl.classList.remove('hidden');
                     statusEl.classList.add('text-red-400');
                 }
+            });
+        }
+
+        function loadMyPosition() {
+            var apiUrl = 'https://sendformemail-vq452mc6iq-uc.a.run.app';
+            var statusEl = document.getElementById('myposition-status');
+            var contentEl = document.getElementById('myposition-content');
+            var emailEl = document.getElementById('myposition-email');
+            var rankEl = document.getElementById('myposition-rank');
+            var tierEl = document.getElementById('myposition-tier');
+            var dataEl = document.getElementById('myposition-data');
+            if (!statusEl || !contentEl) return;
+            var ref = (new URL(window.location.href)).searchParams.get('ref') || '';
+            if (!ref.trim()) {
+                statusEl.textContent = 'Missing referral code. Use the link from your confirmation email.';
+                statusEl.classList.add('text-red-400');
+                return;
+            }
+            statusEl.textContent = 'Loading...';
+            statusEl.classList.remove('text-red-400');
+            contentEl.classList.add('hidden');
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'myposition', ref: ref })
+            }).then(function(r) {
+                return r.json().then(function(d) {
+                    if (!r.ok) throw new Error(d && d.error || 'Request failed');
+                    return d;
+                });
+            }).then(function(d) {
+                emailEl.textContent = d.email || '—';
+                rankEl.textContent = d.rank ? ('#' + d.rank + ' out of ' + (d.totalParticipants || 0)) : '—';
+                tierEl.textContent = d.tier || '';
+                var lines = [];
+                if (d.name || d.surname) lines.push('Name: ' + [d.name, d.surname].filter(Boolean).join(' '));
+                if (d.source) lines.push('Source: ' + d.source);
+                if (d.isMentor) lines.push('I am a mentor: Yes');
+                if (d.notes) lines.push('', d.notes);
+                dataEl.textContent = lines.join('\n') || '—';
+                statusEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+            }).catch(function(err) {
+                statusEl.textContent = err.message || 'Failed to load your position.';
+                statusEl.classList.remove('hidden');
+                statusEl.classList.add('text-red-400');
             });
         }
 
