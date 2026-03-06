@@ -1,0 +1,4 @@
+gcloud functions deploy sendFormEmail  --gen2 --runtime python312 --region us-central1 --trigger-http --allow-unauthenticated --entry-point=send_form_email --set-env-vars "GMAIL_USER=revyktrader@gmail.com,GMAIL_APP_PASSWORD=ewdhmbazlxxnvxje,TO_EMAIL=info@tradingboard.ai
+
+firebase deploy
+

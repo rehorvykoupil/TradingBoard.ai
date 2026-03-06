@@ -644,7 +644,9 @@
                     <div class="mt-4 p-4 rounded-xl bg-black/40 border border-zinc-800">
                         <p class="text-xs font-semibold text-zinc-400 uppercase tracking-[0.18em] mb-1">Your unique invite link</p>
                         <p class="text-sm text-white font-mono break-all">tradingboard.ai/v/unique-id-123</p>
-                        <p class="text-xs text-zinc-500 mt-2">(1 referral = +50 positions)</p>
+                        <p class="text-xs text-zinc-500 mt-2">
+                            More referrals = better position. Rank is determined primarily by your number of successful referrals; join date only breaks ties.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -925,7 +927,11 @@
                                 <th class="px-3 py-3 text-left">Source</th>
                                 <th class="px-3 py-3 text-left">Name</th>
                                 <th class="px-3 py-3 text-left">Surname</th>
+                                <th class="px-3 py-3 text-left">Submitted</th>
+                                <th class="px-3 py-3 text-left"># of referrals</th>
                                 <th class="px-3 py-3 text-left">Details</th>
+                                <th class="px-3 py-3 text-left">Ref</th>
+                                <th class="px-3 py-3 text-left">Ref email</th>
                             </tr>
                         </thead>
                         <tbody id="applicants-tbody">
@@ -961,6 +967,20 @@
         </header>
     </div>
 
+    <!-- UNSUBSCRIBE from rank alerts (link from email) -->
+    <div id="unsubscribe-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24 min-h-screen flex items-center justify-center">
+            <div class="max-w-xl mx-auto w-full text-center">
+                <h1 class="text-2xl sm:text-3xl font-semibold mb-8">Manage notifications</h1>
+                <div id="unsubscribe-status" class="text-sm text-zinc-400 mb-4">Loading...</div>
+                <div id="unsubscribe-done" class="hidden text-left space-y-4 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+                    <p class="text-zinc-200">You have been unsubscribed from live rank updates and leaderboard alerts.</p>
+                    <p class="text-zinc-400 text-sm">Your position on the leaderboard is unchanged; you will no longer receive emails when your rank changes.</p>
+                </div>
+            </div>
+        </header>
+    </div>
+
     <footer class="py-8 sm:py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase relative z-10 px-4">
         © <span id="footer-year"></span> TradingBoard.ai | Next-Gen Systematic Alpha
     </footer>
@@ -976,6 +996,7 @@
             if (hash === 'validation') return 'validation';
             if (hash === 'applicants') return 'applicants';
             if (hash === 'myposition') return 'myposition';
+            if (hash === 'unsubscribe') return 'unsubscribe';
             return 'home';
         }
         function showPage(pageId) {
@@ -985,6 +1006,7 @@
             else if (pageId === 'validation') desiredHash = '#validation';
             else if (pageId === 'applicants') desiredHash = '#applicants';
             else if (pageId === 'myposition') desiredHash = '#myposition';
+            else if (pageId === 'unsubscribe') desiredHash = '#unsubscribe';
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
             var el = document.getElementById(pageId + '-page');
@@ -995,6 +1017,7 @@
             if (typeof resizeCubes === 'function') resizeCubes();
             if (pageId === 'applicants' && typeof loadApplicants === 'function') loadApplicants();
             if (pageId === 'myposition' && typeof loadMyPosition === 'function') loadMyPosition();
+            if (pageId === 'unsubscribe' && typeof loadUnsubscribe === 'function') loadUnsubscribe();
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
         var initialPage = getPageFromHash();
@@ -1426,10 +1449,25 @@
                     tr.appendChild(td(a.source || ''));
                     tr.appendChild(td(a.name || ''));
                     tr.appendChild(td(a.surname || ''));
+                    var submittedText = '';
+                    if (a.submittedAt) {
+                        try {
+                            var dt = new Date(a.submittedAt);
+                            submittedText = isNaN(dt.getTime()) ? a.submittedAt : dt.toLocaleString();
+                        } catch (e) {
+                            submittedText = a.submittedAt;
+                        }
+                    } else {
+                        submittedText = '—';
+                    }
+                    tr.appendChild(td(submittedText));
+                    tr.appendChild(td((a.referrals != null ? a.referrals : 0).toString()));
                     var detailsCell = document.createElement('td');
                     detailsCell.className = 'px-3 py-2 align-top text-xs text-zinc-400 whitespace-pre-wrap';
                     detailsCell.textContent = a.notes || '';
                     tr.appendChild(detailsCell);
+                    tr.appendChild(td(a.referredByRef || ''));
+                    tr.appendChild(td(a.referredByEmail || ''));
                     tbody.appendChild(tr);
                 });
                 if (statusEl) {
@@ -1486,6 +1524,38 @@
             }).catch(function(err) {
                 statusEl.textContent = err.message || 'Failed to load your position.';
                 statusEl.classList.remove('hidden');
+                statusEl.classList.add('text-red-400');
+            });
+        }
+
+        function loadUnsubscribe() {
+            var apiUrl = typeof FORM_API_URL !== 'undefined' ? FORM_API_URL : 'https://sendformemail-vq452mc6iq-uc.a.run.app';
+            var statusEl = document.getElementById('unsubscribe-status');
+            var doneEl = document.getElementById('unsubscribe-done');
+            if (!statusEl || !doneEl) return;
+            var ref = (new URL(window.location.href)).searchParams.get('ref') || '';
+            if (!ref.trim()) {
+                statusEl.textContent = 'Missing referral code. Use the link from your email.';
+                statusEl.classList.add('text-red-400');
+                return;
+            }
+            statusEl.textContent = 'Unsubscribing...';
+            statusEl.classList.remove('text-red-400');
+            doneEl.classList.add('hidden');
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'unsubscribe', ref: ref })
+            }).then(function(r) {
+                return r.json().then(function(d) {
+                    if (!r.ok) throw new Error(d && d.error || 'Request failed');
+                    return d;
+                });
+            }).then(function() {
+                statusEl.classList.add('hidden');
+                doneEl.classList.remove('hidden');
+            }).catch(function(err) {
+                statusEl.textContent = err.message || 'Could not unsubscribe. Please try the link from your email again.';
                 statusEl.classList.add('text-red-400');
             });
         }
