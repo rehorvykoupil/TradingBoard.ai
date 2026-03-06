@@ -351,12 +351,20 @@
                 <div class="cube-container w-full lg:w-[450px] xl:w-[600px] h-[280px] sm:h-[360px] lg:h-[500px] mt-8 lg:mt-0" data-cube="validation"></div>
             </div>
 
+            <!-- Help Us Build intro (above presentation) -->
+            <section class="reveal max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl sm:text-4xl font-medium mb-4">Help Us Build the Right Tool</h2>
+                <p class="text-zinc-400 font-light">
+                    We value your expertise. Briefly review the introduction presentation, answer 4 strategic questions, and submit.
+                </p>
+            </section>
+
             <!-- Presentation Section -->
-            <section class="reveal mb-20">
-                <div class="max-w-4xl mx-auto mb-4">
+            <section class="reveal max-w-3xl mx-auto mb-20">
+                <div class="mb-4">
                     <p class="text-xs font-semibold tracking-[0.25em] uppercase text-zinc-500">Introduction Presentation Preview</p>
                 </div>
-                <div class="relative max-w-5xl mx-auto group cursor-pointer" onclick="window.open('assets/TradingBoard.ai-Intro.pdf', '_blank')">
+                <div class="relative max-w-3xl mx-auto group cursor-pointer" onclick="window.open('assets/TradingBoard.ai-Intro.pdf', '_blank')">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60"></div>
                     <img src="assets/TradingBoard.ai-Intro-preview.png"
                          class="w-full h-[360px] sm:h-[400px] object-cover rounded-3xl border border-white/10 transition group-hover:border-white/30"
@@ -374,18 +382,11 @@
 
             <!-- Strategic Validation Form -->
             <section class="reveal max-w-3xl mx-auto pb-20">
-                <div class="mb-10">
-                    <h2 class="text-3xl sm:text-4xl font-medium mb-4">Help Us Build the Right Tool</h2>
-                    <p class="text-zinc-400 font-light">
-                        We value your expertise. Your answers will directly influence the final architecture of TradingBoard.ai.
-                    </p>
-                </div>
-
                 <form id="validation-form" class="space-y-12">
                     <!-- Q1 -->
                     <div>
                         <label class="block text-xl font-medium mb-4">
-                            1. Core Concept<br>
+                            Question 1: Core Concept<br>
                             <span class="text-base font-normal text-zinc-300">
                                 Does migrating the features and logic of platforms like MultiCharts/TradeStation to a cloud-native environment make sense to you?
                                 From your perspective, is this the direction traders are looking to take?
@@ -416,7 +417,7 @@
                     <!-- Q2 -->
                     <div>
                         <label class="block text-xl font-medium mb-4">
-                            2. Red Flags<br>
+                            Question 2: Red Flags<br>
                             <span class="text-base font-normal text-zinc-300">
                                 In the solution presented, do you see any "deal-breakers" or hurdles that would prevent a trader from
                                 switching to this platform, assuming 99% code compatibility?
@@ -428,7 +429,7 @@
                     <!-- Q3 -->
                     <div>
                         <label class="block text-xl font-medium mb-4">
-                            3. Product-Market Fit<br>
+                            Question 3: Product-Market Fit<br>
                             <span class="text-base font-normal text-zinc-300">
                                 If this platform were available tomorrow, would it make sense for you to use it personally as a trader?
                                 (Additionally, if you are a mentor, do you see its value as a tool (Mentor Hub) for your academy?)
@@ -459,7 +460,7 @@
                     <!-- Q4 -->
                     <div>
                         <label class="block text-xl font-medium mb-4">
-                            4. Message to the Founders<br>
+                            Question 4: Message to the Founders<br>
                             <span class="text-base font-normal text-zinc-300">
                                 Do you want to write a message to the founding team?
                             </span>
@@ -795,6 +796,35 @@
         </header>
     </div>
 
+    <!-- APPLICANTS VIEW (admin list) -->
+    <div id="applicants-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24">
+            <div class="max-w-5xl mx-auto">
+                <h1 class="text-2xl sm:text-3xl font-semibold mb-6">Applicants</h1>
+                <p class="text-sm text-zinc-400 mb-8">
+                    This table shows all emails collected via Early Access and Validation forms, in the order they joined.
+                </p>
+                <div id="applicants-status" class="text-sm text-zinc-400 mb-4 hidden"></div>
+                <div class="overflow-x-auto border border-zinc-800 rounded-2xl bg-zinc-950/60">
+                    <table class="min-w-full text-sm text-zinc-200" id="applicants-table">
+                        <thead class="bg-zinc-900/80 text-xs uppercase tracking-[0.16em] text-zinc-500">
+                            <tr>
+                                <th class="px-3 py-3 text-left">#</th>
+                                <th class="px-3 py-3 text-left">Email</th>
+                                <th class="px-3 py-3 text-left">Source</th>
+                                <th class="px-3 py-3 text-left">Name</th>
+                                <th class="px-3 py-3 text-left">Surname</th>
+                                <th class="px-3 py-3 text-left">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicants-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </header>
+    </div>
+
     <footer class="py-8 sm:py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase relative z-10 px-4">
         © <span id="footer-year"></span> TradingBoard.ai | Next-Gen Systematic Alpha
     </footer>
@@ -808,6 +838,7 @@
             if (hash === 'contact') return 'contact';
             if (hash === 'login') return 'login';
             if (hash === 'validation') return 'validation';
+            if (hash === 'applicants') return 'applicants';
             return 'home';
         }
         function showPage(pageId) {
@@ -815,6 +846,7 @@
             if (pageId === 'contact') desiredHash = '#contact';
             else if (pageId === 'login') desiredHash = '#login';
             else if (pageId === 'validation') desiredHash = '#validation';
+            else if (pageId === 'applicants') desiredHash = '#applicants';
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
             var el = document.getElementById(pageId + '-page');
@@ -823,6 +855,7 @@
             if (typeof handleScroll === 'function') handleScroll();
             if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
             if (typeof resizeCubes === 'function') resizeCubes();
+            if (pageId === 'applicants' && typeof loadApplicants === 'function') loadApplicants();
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
         var initialPage = getPageFromHash();
@@ -887,15 +920,15 @@
         handleScroll();
 
         // --- FORM SUBMISSIONS (Google Cloud Function + Gmail; no DB) ---
-        // Set to your Cloud Function URL after deploy (e.g. https://REGION-PROJECT.cloudfunctions.net/sendFormEmail)
-        var FORM_API_URL = 'https://us-central1-my-project-web-488416.cloudfunctions.net/sendFormEmail';
+        // Set to your Cloud Function URL after deploy. Gen2: gcloud functions describe sendFormEmail --region us-central1 --gen2 --format="value(serviceConfig.uri)"
+        var FORM_API_URL = 'https://sendformemail-vq452mc6iq-uc.a.run.app';
         function showCtaMessage(ids, msg, isError) {
             ids.forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) { el.textContent = msg; el.classList.toggle('text-red-400', isError); el.classList.remove('hidden'); }
             });
         }
-        function submitEarlyAccess(email, buttonId, messageIds) {
+        function submitEarlyAccess(email, buttonId, messageIds, source) {
             var btn = document.getElementById(buttonId);
             if (!btn || !email) return;
             btn.classList.add('btn-loading');
@@ -903,7 +936,7 @@
             fetch(FORM_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'earlyAccess', email: email })
+                body: JSON.stringify({ action: 'earlyAccess', email: email, source: source || 'M1' })
             }).then(function(r) {
                 if (r.ok) showCtaMessage(messageIds, 'Thanks! We\'ll be in touch.', false);
                 else return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
@@ -915,11 +948,11 @@
         }
         document.getElementById('cta-submit').addEventListener('click', function() {
             var email = (document.getElementById('cta-email') || {}).value;
-            submitEarlyAccess(email, 'cta-submit', ['cta-message']);
+            submitEarlyAccess(email, 'cta-submit', ['cta-message'], 'M1');
         });
         document.getElementById('cta-submit-bottom').addEventListener('click', function() {
             var email = (document.getElementById('cta-email-bottom') || {}).value;
-            submitEarlyAccess(email, 'cta-submit-bottom', ['cta-message-bottom']);
+            submitEarlyAccess(email, 'cta-submit-bottom', ['cta-message-bottom'], 'M2');
         });
 
         // Validation presentation lightbox
@@ -967,6 +1000,11 @@
             var msgEl = document.getElementById('validation-form-message');
             var successBox = document.getElementById('validation-success');
 
+            var url = new URL(window.location.href);
+            var referralCode = url.searchParams.get('ref') || '';
+
+            function getReferralCode() { return (new URL(window.location.href)).searchParams.get('ref') || ''; }
+
             function getScale(name) {
                 var checked = document.querySelector('input[name="' + name + '"]:checked');
                 return checked ? checked.value : '';
@@ -1012,17 +1050,24 @@
                 fetch(FORM_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'validation', email: email, notes: notes })
+                    body: JSON.stringify({ action: 'validation', email: email, notes: notes, ref: getReferralCode(), name: first, surname: last })
                 }).then(function(r) {
-                    if (r.ok) {
-                        if (successBox) successBox.classList.remove('hidden');
-                        if (msgEl) {
-                            msgEl.textContent = 'Thanks for your feedback. Check your inbox for your current tier.';
-                            msgEl.classList.remove('hidden', 'text-red-400');
+                    return r.text().then(function(text) {
+                        var d;
+                        try { d = JSON.parse(text); } catch (e) { d = null; }
+                        if (r.ok) {
+                            if (successBox) successBox.classList.remove('hidden');
+                            if (msgEl) {
+                                msgEl.textContent = 'Thanks for your feedback. Check your inbox for your current tier.';
+                                msgEl.classList.remove('hidden', 'text-red-400');
+                            }
+                            return;
                         }
-                    } else {
-                        return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
-                    }
+                        var errMsg = (d && (d.error || d.message)) || ('Request failed: ' + r.status);
+                        if (d && d.detail) errMsg += ' — ' + d.detail;
+                        if (!d && text) errMsg += ' — ' + text.slice(0, 300);
+                        throw new Error(errMsg);
+                    });
                 }).catch(function(err) {
                     if (msgEl) {
                         msgEl.textContent = err.message || 'Something went wrong. Please try again.';
@@ -1037,6 +1082,74 @@
                 });
             });
         })();
+
+        // Applicants admin list — URL hardcoded so it always works after deploy
+        var _applicantsLoaded = false;
+        function loadApplicants() {
+            if (_applicantsLoaded) return;
+            _applicantsLoaded = true;
+            var statusEl = document.getElementById('applicants-status');
+            var tbody = document.getElementById('applicants-tbody');
+            if (!tbody) return;
+            var apiUrl = 'https://sendformemail-vq452mc6iq-uc.a.run.app';
+            if (statusEl) {
+                statusEl.textContent = 'Loading applicants...';
+                statusEl.classList.remove('hidden');
+            }
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'applicants' })
+            }).then(function(r) {
+                return r.text().then(function(text) {
+                    if (!r.ok) {
+                        try { var d = JSON.parse(text); throw new Error(d.error || d.message || 'Request failed'); } catch (parseErr) {
+                            throw new Error('Request failed: ' + r.status + (text ? ' ' + text.slice(0, 60) : ''));
+                        }
+                    }
+                    if (text.trim().indexOf('<') === 0) {
+                        throw new Error('Server returned HTML instead of JSON. Check CORS or wrong URL. Request was to: ' + apiUrl);
+                    }
+                    try { return JSON.parse(text); } catch (e) { throw new Error('Invalid JSON: ' + text.slice(0, 80)); }
+                });
+            }).then(function(r) {
+                if (!r || r.error) throw new Error(r && r.error || 'Request failed');
+                return r;
+            }).then(function(data) {
+                var list = data && data.applicants || [];
+                tbody.innerHTML = '';
+                list.forEach(function(a) {
+                    var tr = document.createElement('tr');
+                    tr.className = 'border-t border-zinc-800/80';
+                    function td(text, extra) {
+                        var cell = document.createElement('td');
+                        cell.className = 'px-3 py-2 align-top ' + (extra || '');
+                        cell.textContent = text || '';
+                        return cell;
+                    }
+                    tr.appendChild(td(a.order != null ? a.order.toString() : ''));
+                    tr.appendChild(td(a.email || ''));
+                    tr.appendChild(td(a.source || ''));
+                    tr.appendChild(td(a.name || ''));
+                    tr.appendChild(td(a.surname || ''));
+                    var detailsCell = document.createElement('td');
+                    detailsCell.className = 'px-3 py-2 align-top text-xs text-zinc-400 whitespace-pre-wrap';
+                    detailsCell.textContent = a.notes || '';
+                    tr.appendChild(detailsCell);
+                    tbody.appendChild(tr);
+                });
+                if (statusEl) {
+                    statusEl.textContent = list.length ? ('Loaded ' + list.length + ' applicants.') : 'No applicants yet.';
+                }
+            }).catch(function(err) {
+                if (statusEl) {
+                    statusEl.textContent = err.message || 'Failed to load applicants.';
+                    statusEl.classList.remove('hidden');
+                    statusEl.classList.add('text-red-400');
+                }
+            });
+        }
 
         document.getElementById('contact-form').addEventListener('submit', function(e) {
             e.preventDefault();
