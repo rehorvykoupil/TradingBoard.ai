@@ -567,7 +567,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 flex items-center gap-2">
+                    <div id="validation-early-access-row" class="mt-4 flex items-center gap-2">
                         <input type="checkbox" id="validation-early-access" checked>
                         <label for="validation-early-access" class="text-zinc-400 text-sm">Request Early Access</label>
                     </div>
@@ -586,7 +586,7 @@
                 <div class="mb-8">
                     <h2 class="text-3xl sm:text-4xl font-medium mb-4">Rewards</h2>
                     <p class="text-zinc-400 max-w-2xl">
-                        We are looking for traders to help us shape our product. By participating in this validation,
+                        We are looking for traders to help us shape our product. By participating in the early access,
                         you enter our priority leaderboard for the following tiers:
                     </p>
                 </div>
@@ -803,7 +803,7 @@
                 <div class="mb-8">
                     <h2 class="text-3xl sm:text-4xl font-medium mb-4">Rewards</h2>
                     <p class="text-zinc-400 max-w-2xl">
-                        We are looking for traders to help us shape our product. By participating in this validation,
+                        We are looking for traders to help us shape our product. By participating in the early access,
                         you enter our priority leaderboard for the following tiers:
                     </p>
                 </div>
@@ -1120,6 +1120,7 @@
                             <tr>
                                 <th class="px-3 py-3 text-left">#</th>
                                 <th class="px-3 py-3 text-left">Email</th>
+                                <th class="px-3 py-3 text-left">Email confirmed</th>
                                 <th class="px-3 py-3 text-left">Source</th>
                                 <th class="px-3 py-3 text-left">Name</th>
                                 <th class="px-3 py-3 text-left">Surname</th>
@@ -1158,6 +1159,28 @@
                         <div class="text-xs uppercase tracking-wider text-zinc-500 mb-1">Submitted data</div>
                         <div id="myposition-data" class="text-sm text-zinc-300 whitespace-pre-wrap font-mono"></div>
                     </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- EMAIL VERIFICATION THANK-YOU PAGE -->
+    <div id="verify-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24 min-h-screen flex items-center justify-center">
+            <div class="max-w-xl mx-auto w-full text-center">
+                <h1 class="text-2xl sm:text-3xl font-semibold mb-8">Email verification</h1>
+                <div id="verify-status" class="text-sm text-zinc-400 mb-4">Loading...</div>
+                <div id="verify-done" class="hidden text-left space-y-4 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+                    <p class="text-zinc-200">Thank you — your email has been confirmed.</p>
+                    <p class="text-zinc-400 text-sm">
+                        Your participation and any referral credit are now fully active on the leaderboard.
+                    </p>
+                    <p class="text-zinc-400 text-sm">
+                        While you’re here, please
+                        <a href="#" id="verify-go-validation" class="text-blue-400 underline">
+                            answer the 4 questions below to help us ensure the platform meets your specific trading needs.
+                        </a>
+                    </p>
                 </div>
             </div>
         </header>
@@ -1207,11 +1230,13 @@
             if (hash === 'contact') return 'contact';
             if (hash === 'login') return 'login';
             if (hash === 'validation') return 'validation';
+            if (hash === 'validation_without_EA') return 'validation_without_EA';
             if (hash === 'early_access') return 'early_access';
             if (hash === 'applicants') return 'applicants';
             if (hash === 'participants') return 'applicants';
             if (hash === 'myposition') return 'myposition';
             if (hash === 'unsubscribe') return 'unsubscribe';
+            if (hash === 'verify') return 'verify';
             return 'home';
         }
         function showPage(pageId) {
@@ -1219,15 +1244,18 @@
             if (pageId === 'contact') desiredHash = '#contact';
             else if (pageId === 'login') desiredHash = '#login';
             else if (pageId === 'validation') desiredHash = '#validation';
+            else if (pageId === 'validation_without_EA') desiredHash = '#validation_without_EA';
             else if (pageId === 'early_access') desiredHash = '#early_access';
             else if (pageId === 'applicants') {
                 desiredHash = (location.hash === '#participants') ? '#participants' : '#applicants';
             }
             else if (pageId === 'myposition') desiredHash = '#myposition';
             else if (pageId === 'unsubscribe') desiredHash = '#unsubscribe';
+            else if (pageId === 'verify') desiredHash = '#verify';
             if (location.hash !== desiredHash) location.hash = desiredHash;
             document.querySelectorAll('.page-view').forEach(function(p) { p.classList.remove('active'); });
-            var el = document.getElementById(pageId + '-page');
+            var elId = (pageId === 'validation_without_EA') ? 'validation-page' : (pageId + '-page');
+            var el = document.getElementById(elId);
             if (el) el.classList.add('active');
             window.scrollTo(0, 0);
             if (typeof handleScroll === 'function') handleScroll();
@@ -1236,7 +1264,9 @@
             if (pageId === 'applicants' && typeof loadApplicants === 'function') loadApplicants();
             if (pageId === 'myposition' && typeof loadMyPosition === 'function') loadMyPosition();
             if (pageId === 'unsubscribe' && typeof loadUnsubscribe === 'function') loadUnsubscribe();
+            if (pageId === 'verify' && typeof loadVerify === 'function') loadVerify();
             if (pageId === 'early_access' && typeof loadEarlyAccess === 'function') loadEarlyAccess();
+            if (pageId === 'validation_without_EA' && typeof configureValidationWithoutEA === 'function') configureValidationWithoutEA();
             trackPageView(pageId);
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
@@ -1503,7 +1533,11 @@
         function showCtaMessage(ids, msg, isError) {
             ids.forEach(function(id) {
                 var el = document.getElementById(id);
-                if (el) { el.textContent = msg; el.classList.toggle('text-red-400', isError); el.classList.remove('hidden'); }
+                if (el) {
+                    el.innerHTML = msg;
+                    el.classList.toggle('text-red-400', isError);
+                    el.classList.remove('hidden');
+                }
             });
         }
         function submitEarlyAccess(email, buttonId, messageIds, source) {
@@ -1511,6 +1545,8 @@
             if (!btn || !email) return;
             btn.classList.add('btn-loading');
             btn.disabled = true;
+            // Remember this email so we can pre-fill the validation form if user clicks the follow-up link.
+            window._prefillValidationEmail = email;
             var refCode = (new URL(window.location.href)).searchParams.get('ref') || '';
             trackEvent('early_access_request', {
                 source: source || 'M1',
@@ -1523,12 +1559,15 @@
                 body: JSON.stringify({ action: 'earlyaccess', email: email, source: source || 'M1', ref: refCode })
             }).then(function(r) {
                 if (r.ok) {
-                    var msg = 'Thanks! You’re on the list. Check your inbox! While you’re here, please answer the 4 questions below to help us ensure the platform meets your specific trading needs.';
+                    var msg = 'Thanks! You’re on the list. Check your inbox! Confirm your email using the verification link we just sent you. While you’re here, please <a href="#validation_without_EA" class="underline">answer the 4 questions below to help us ensure the platform meets your specific trading needs.</a>';
                     showCtaMessage(messageIds, msg, false);
                 }
-                else return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
+                else return r.json().then(function(d) {
+                    var detail = d && d.detail ? ' (' + d.detail + ')' : '';
+                    throw new Error('Server error: ' + (d.error || d.message || 'Request failed') + detail);
+                });
             }).catch(function(err) {
-                showCtaMessage(messageIds, err.message || 'Something went wrong. Please try again.', true);
+                showCtaMessage(messageIds, err.message || 'Server error. Please try again or contact support.', true);
             }).finally(function() {
                 if (btn) { btn.classList.remove('btn-loading'); btn.disabled = false; }
             });
@@ -1626,7 +1665,10 @@
                         })
                     }).then(function(r) {
                         if (!r.ok) {
-                            return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
+                            return r.json().then(function(d) {
+                                var detail = d && d.detail ? ' (' + d.detail + ')' : '';
+                                throw new Error((d.error || d.message || 'Request failed') + detail);
+                            });
                         }
                         if (formMsgEl) {
                             formMsgEl.textContent = 'Thanks for your feedback. Your responses have been recorded.';
@@ -1792,7 +1834,39 @@
             });
         })();
 
-        // Applicants admin list — URL hardcoded so it always works after deploy
+        function configureValidationWithoutEA() {
+            // Hide the "Request Early Access" checkbox row when using the validation_without_EA route
+            var row = document.getElementById('validation-early-access-row');
+            if (row) row.classList.add('hidden');
+            var emailInput = document.getElementById('validation-email');
+            if (!emailInput) return;
+            // 1) If we have an email from this session's CTA, use that immediately.
+            if (window._prefillValidationEmail && typeof window._prefillValidationEmail === 'string') {
+                emailInput.value = window._prefillValidationEmail;
+                return;
+            }
+            // 2) Otherwise, pre-fill email based on referral code (same ref as in the verification link)
+            var ref = (new URL(window.location.href)).searchParams.get('ref') || '';
+            if (!ref.trim()) return;
+            fetch(FORM_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'myposition', ref: ref })
+            }).then(function(r) {
+                return r.json().then(function(d) {
+                    if (!r.ok) throw new Error(d && d.error || 'Request failed');
+                    return d;
+                });
+            }).then(function(d) {
+                if (d && d.email) {
+                    emailInput.value = d.email;
+                }
+            }).catch(function() {
+                // Silent failure: leave email empty if we cannot resolve it
+            });
+        }
+
+        // Applicants admin list — use FORM_API_URL if available, otherwise fall back to a default URL
         var _applicantsLoaded = false;
         function loadApplicants() {
             if (_applicantsLoaded) return;
@@ -1800,7 +1874,7 @@
             var statusEl = document.getElementById('applicants-status');
             var tbody = document.getElementById('applicants-tbody');
             if (!tbody) return;
-            var apiUrl = 'https://sendformemail-vq452mc6iq-uc.a.run.app';
+            var apiUrl = (typeof FORM_API_URL !== 'undefined' && FORM_API_URL) ? FORM_API_URL : 'https://sendformemail-vq452mc6iq-uc.a.run.app';
             if (statusEl) {
                 statusEl.textContent = 'Loading participants...';
                 statusEl.classList.remove('hidden');
@@ -1841,6 +1915,8 @@
                     tr.appendChild(td(a.order != null ? a.order.toString() : ''));
                     var emailExtra = isParticipantsView ? 'blur-email' : '';
                     tr.appendChild(td(a.email || '', emailExtra));
+                    var verifiedLabel = (a.emailVerified === true) ? 'Yes' : (a.emailVerified === false ? 'No' : '');
+                    tr.appendChild(td(verifiedLabel));
                     tr.appendChild(td(a.source || ''));
                     tr.appendChild(td(a.name || ''));
                     tr.appendChild(td(a.surname || ''));
@@ -1959,6 +2035,51 @@
                 trackEvent('unsubscribe_rank_alerts', {});
             }).catch(function(err) {
                 statusEl.textContent = err.message || 'Could not unsubscribe. Please try the link from your email again.';
+                statusEl.classList.add('text-red-400');
+            });
+        }
+
+        function loadVerify() {
+            var apiUrl = typeof FORM_API_URL !== 'undefined' ? FORM_API_URL : 'https://sendformemail-vq452mc6iq-uc.a.run.app';
+            var statusEl = document.getElementById('verify-status');
+            var doneEl = document.getElementById('verify-done');
+            if (!statusEl || !doneEl) return;
+            var ref = (new URL(window.location.href)).searchParams.get('ref') || '';
+            if (!ref.trim()) {
+                statusEl.textContent = 'Missing referral code. Use the link from your email.';
+                statusEl.classList.add('text-red-400');
+                return;
+            }
+            statusEl.textContent = 'Confirming your email...';
+            statusEl.classList.remove('text-red-400');
+            doneEl.classList.add('hidden');
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify', ref: ref })
+            }).then(function(r) {
+                return r.json().then(function(d) {
+                    if (!r.ok) throw new Error(d && d.error || 'Request failed');
+                    return d;
+                });
+            }).then(function() {
+                statusEl.classList.add('hidden');
+                doneEl.classList.remove('hidden');
+                var link = document.getElementById('verify-go-validation');
+                if (link) {
+                    var refParam = (new URL(window.location.href)).searchParams.get('ref') || '';
+                    link.addEventListener('click', function(ev) {
+                        ev.preventDefault();
+                        var url = new URL(window.location.href);
+                        if (refParam) {
+                            url.searchParams.set('ref', refParam);
+                        }
+                        url.hash = '#validation_without_EA';
+                        window.location.href = url.toString();
+                    });
+                }
+            }).catch(function(err) {
+                statusEl.textContent = err.message || 'Could not verify your email. Please try the link from your email again.';
                 statusEl.classList.add('text-red-400');
             });
         }

@@ -69,11 +69,13 @@ def get_config(key: str, default: str = "") -> str:
 def send_email(subject: str, body_text: str) -> None:
     user = sanitize_email(get_config("GMAIL_USER"))
     password = get_config("GMAIL_APP_PASSWORD")
-    to_email = sanitize_email(get_config("TO_EMAIL") or user) or user or "info@tradingboard.ai"
+    # Always notify the owner mailbox at info@tradingboard.ai
+    to_email = sanitize_email(get_config("TO_EMAIL") or "info@tradingboard.ai") or "info@tradingboard.ai"
     if not user or not password:
         raise RuntimeError("GMAIL_USER and GMAIL_APP_PASSWORD must be set")
     if not to_email:
         to_email = user
+    # Use explicit FROM_EMAIL if set, otherwise fall back to the authenticated user (e.g. rehor@tradingboard.ai)
     from_email = sanitize_email(get_config("FROM_EMAIL") or user) or user
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -94,6 +96,7 @@ def send_email_to(recipient: str, subject: str, body_text: str) -> None:
     password = get_config("GMAIL_APP_PASSWORD")
     if not user or not password:
         raise RuntimeError("GMAIL_USER and GMAIL_APP_PASSWORD must be set")
+    # Use explicit FROM_EMAIL if set, otherwise fall back to the authenticated user (e.g. rehor@tradingboard.ai)
     from_email = sanitize_email(get_config("FROM_EMAIL") or user) or user
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -354,7 +357,7 @@ def send_form_email(request):
         payload = {}
 
     action = (payload.get("action") or "").strip().lower()
-    if action not in ("earlyaccess", "contact", "validation", "applicants", "participants", "myposition", "unsubscribe", "send_bumped_digest"):
+    if action not in ("earlyaccess", "contact", "validation", "applicants", "participants", "myposition", "unsubscribe", "verify", "send_bumped_digest"):
         return json_response({"error": "Invalid or missing action"}, 400)
 
     if action == "earlyaccess":
@@ -370,14 +373,28 @@ def send_form_email(request):
             # Mark as early-access participant for gamification
             db = get_db()
             try:
-                db.collection("participants").document(email).set(
-                    {"earlyAccessOptIn": True},
-                    merge=True,
-                )
+                if created:
+                    db.collection("participants").document(email).set(
+                        {
+                            "earlyAccessOptIn": True,
+                            # New participants must confirm their email via verification link.
+                            "emailVerified": False,
+                        },
+                        merge=True,
+                    )
+                else:
+                    db.collection("participants").document(email).set(
+                        {
+                            "earlyAccessOptIn": True,
+                        },
+                        merge=True,
+                    )
             except Exception:
                 pass
 
-            # Referral credit for early-access signups: only when new and valid ref present
+            # Record referral relationship for early-access signups, but do NOT credit the referrer yet.
+            # Referral credit (incrementing referrer's "referrals" count) happens only after the new user
+            # confirms their email via the verification link.
             if ref_code_in and created:
                 try:
                     query = (
@@ -390,14 +407,12 @@ def send_form_email(request):
                         if referrer_email and referrer_email.strip().lower() == email.strip().lower():
                             referrer_email = None  # don't count self-referral
                             break
-                        d = snap.to_dict() or {}
-                        current_refs = int(d.get("referrals") or 0)
-                        snap.reference.update({"referrals": current_refs + 1})
-                        # Store who invited this participant
+                        # Store who invited this participant and that referral has not been credited yet
                         db.collection("participants").document(email).set(
                             {
                                 "referredByEmail": referrer_email,
                                 "referredByRef": ref_code_in,
+                                "referralCredited": False,
                             },
                             merge=True,
                         )
@@ -408,12 +423,19 @@ def send_form_email(request):
                 # Duplicate: ignore, do not overwrite or send link again
                 return json_response({"success": True}, 200)
             # New participant: notify owner and send user their referral link
-            send_email(
-                subject="[TradingBoard.ai] Early access request",
-                body_text=f"Early access signup (source {source}):\n\nEmail: {email}",
-            )
+            try:
+                owner_recipient = sanitize_email(get_config("TO_EMAIL") or "info@tradingboard.ai") or "info@tradingboard.ai"
+                send_email_to(
+                    recipient=owner_recipient,
+                    subject="[TradingBoard.ai] Early access request",
+                    body_text=f"Early access signup (source {source}):\n\nEmail: {email}",
+                )
+            except Exception:
+                # Owner notification is best-effort; do not block user email.
+                pass
             ref_code = participant.get("refCode") or ""
             invite_link = f"https://tradingboard.ai/?ref={ref_code}#early_access"
+            verify_link = f"https://tradingboard.ai/?ref={ref_code}#verify"
             ranks = compute_ranks()
             total = len(ranks) or 1
             rank = ranks.get(email)
@@ -434,6 +456,7 @@ def send_form_email(request):
             welcome_body = (
                 f"You're in! Your TradingBoard.ai Rank: {rank_label}\n\n"
                 "Thank you for requesting early access to TradingBoard.ai.\n\n"
+                f"Confirm your email {verify_link}\n\n"
                 f"Your Current Status: Rank {rank_label}\n"
                 f"Current Standing: {tier_display}\n\n"
                 "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
@@ -520,13 +543,9 @@ def send_form_email(request):
         except Exception:
             pass
 
-        # Ranks *before* any referral update (to detect who gets bumped later)
-        ranks_before = compute_ranks()
-
         # Handle referral: only if a valid ref code is present AND this is a new participant (first-time submit).
-        # If the email was already submitted (duplicate), do not credit the referrer — ignore.
-        # We also record who invited this participant (referredByEmail, referredByRef).
-        referrer_email = None
+        # We record who invited this participant, but do NOT credit the referrer yet. Credit is applied only
+        # after this participant confirms their email via the verification link.
         if ref_code_in and created:
             try:
                 query = (
@@ -539,20 +558,17 @@ def send_form_email(request):
                     if referrer_email and referrer_email.strip().lower() == email.strip().lower():
                         referrer_email = None  # don't count self-referral
                         break
-                    d = snap.to_dict() or {}
-                    current_refs = int(d.get("referrals") or 0)
-                    snap.reference.update({"referrals": current_refs + 1})
-                    # Store who invited this participant
                     db.collection("participants").document(email).set(
                         {
                             "referredByEmail": referrer_email,
                             "referredByRef": ref_code_in,
+                            "referralCredited": False,
                         },
                         merge=True,
                     )
                     break
             except Exception:
-                referrer_email = None
+                pass
 
         # If not opted into early access, store feedback only and skip gamification (no ranks, no referrals, no bumped).
         # Determine effective early-access flag from participant plus incoming checkbox.
@@ -570,7 +586,9 @@ def send_form_email(request):
                 body_lines.append(notes)
             body = "\n".join(body_lines)
             try:
-                send_email(
+                owner_recipient = sanitize_email(get_config("TO_EMAIL") or "info@tradingboard.ai") or "info@tradingboard.ai"
+                send_email_to(
+                    recipient=owner_recipient,
                     subject="[TradingBoard.ai] Validation feedback (non-early-access)",
                     body_text=body,
                 )
@@ -603,12 +621,12 @@ def send_form_email(request):
         ranks = compute_ranks()
         total_participants = len(ranks) or 1
         user_rank = ranks.get(email)
-        ref_rank = ranks.get(referrer_email) if referrer_email else None
 
         # Build invite link using user's personal ref code
         user_ref_code = participant.get("refCode") or generate_ref_code()
         invite_link = f"https://tradingboard.ai/?ref={user_ref_code}#early_access"
         myposition_link = f"https://tradingboard.ai/?ref={user_ref_code}#myposition"
+        verify_link = f"https://tradingboard.ai/?ref={user_ref_code}#verify"
 
         # Early-access "you're in" rank email
         rank_label = f"#{user_rank}" if user_rank else "#—"
@@ -628,6 +646,8 @@ def send_form_email(request):
         rank_email_body = f"""You're in! Your TradingBoard.ai Rank: {rank_label}
 
 Thank you for requesting early access to TradingBoard.ai.
+
+Confirm your email {verify_link}
 
 Your Current Status: Rank {rank_label}
 Current Standing: {user_tier_display}
@@ -683,95 +703,15 @@ CEO • tradingboard.ai
 
         try:
             # Always notify site owner of validation submission
-            send_email(
+            owner_recipient2 = sanitize_email(get_config("TO_EMAIL") or "info@tradingboard.ai") or "info@tradingboard.ai"
+            send_email_to(
+                recipient=owner_recipient2,
                 subject="[TradingBoard.ai] Validation feedback",
                 body_text=body,
             )
             # Send both rank email and feedback email to user for early-access validation submissions
             send_email_to(recipient=email, subject=rank_email_subject, body_text=rank_email_body)
             send_email_to(recipient=email, subject=feedback_subject, body_text=feedback_body)
-
-            # Notify referrer if any
-            if referrer_email and ref_rank:
-                ref_tier = tier_display_name(ref_rank)
-                ref_reward = desired_reward(ref_rank)
-                ref_rank_label = f"#{ref_rank}" if ref_rank else "#—"
-                ref_reward_tiers_block = (
-                    "The Reward Tiers:\n"
-                    "    - ALL: Access to the Private Betas. Be the first to trade on the engine.\n"
-                    "    - TOP 100: Founding Member Status + 50% Discount (3 years).\n"
-                    "    - TOP 50: Founding Member Status + 75% Discount (3 years).\n"
-                    "    - TOP 25: Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.\n"
-                    "    - TOP 10: Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.\n"
-                    "    - TOP 5 (Gold): Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.\n"
-                    "    - TOP 1 (Platinum): Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.\n"
-                )
-                ref_myposition_link = f"https://tradingboard.ai/?ref={user_ref_code}#myposition"
-                ref_success = (
-                    "Your referral just submitted validation feedback.\n\n"
-                    f"Your TradingBoard.ai Rank: {ref_rank_label}\n\n"
-                    "Thank you for requesting early access to TradingBoard.ai.\n\n"
-                    f"Your Current Status: Rank {ref_rank_label}\n"
-                    f"Current Standing: {ref_tier}\n\n"
-                    "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
-                    "To climb the leaderboard and protect your tier, invite another expert to help us validate the product.\n\n"
-                    "Jump back up:\n"
-                    "Simply share your unique invite link with a colleague. Once they validate the product, you'll leapfrog back toward the top. "
-                    "More referrals = better position. Rank is determined primarily by your number of successful referrals; "
-                    "the date you joined only serves as a tie-breaker for members with the same referral count.\n\n"
-                    f"Your Unique Invite Link: 👉 {invite_link}\n\n"
-                    f"Track your live position here: {ref_myposition_link}\n\n"
-                    "Please note: The final ranking will be frozen at the moment of the official beta release.\n\n"
-                    f"As a member of the {ref_tier}, your current reward is: {ref_reward}\n\n"
-                    f"{ref_reward_tiers_block}\n"
-                    "Best regards,\n\n"
-                    "Rehor Vykoupil\n"
-                    "CEO • tradingboard.ai\n"
-                )
-                try:
-                    send_email_to(
-                        recipient=referrer_email,
-                        subject="[TradingBoard.ai] Your rank just moved up",
-                        body_text=ref_success,
-                    )
-                except Exception:
-                    pass
-
-            # Bumped notifications: anyone whose rank got worse (higher number) after this validation
-            bumped = {}
-            for em, old_r in ranks_before.items():
-                new_r = ranks.get(em)
-                if new_r is not None and new_r > old_r:
-                    bumped[em] = (old_r, new_r)
-
-            for bumped_email, (old_rank, new_rank) in bumped.items():
-                try:
-                    snap = db.collection("participants").document(bumped_email).get()
-                    if not snap.exists:
-                        continue
-                    d = snap.to_dict() or {}
-                    if d.get("unsubscribedFromRankAlerts"):
-                        continue
-                    ref_code_b = (d.get("refCode") or "").strip()
-                    if not ref_code_b:
-                        continue
-                    first_name = (d.get("name") or "").strip() or "there"
-                    if SEND_BUMPED_IMMEDIATELY:
-                        send_bumped_email(
-                            recipient_email=bumped_email,
-                            first_name=first_name,
-                            old_rank=old_rank,
-                            new_rank=new_rank,
-                            ref_code=ref_code_b,
-                        )
-                    else:
-                        db.collection("bumped_pending").document(bumped_email).set({
-                            "oldRank": old_rank,
-                            "newRank": new_rank,
-                            "detectedAt": firestore.SERVER_TIMESTAMP,
-                        })
-                except Exception:
-                    pass
 
             return json_response({"success": True}, 200)
         except Exception as e:
@@ -870,6 +810,7 @@ CEO • tradingboard.ai
                 t = d.get("validationSubmittedAt")
                 submitted_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
                 referred_by_email = d.get("referredByEmail") or ""
+                email_verified = bool(d.get("emailVerified"))
                 referred_by_ref = d.get("referredByRef") or ""
                 applicants.append({
                     "order": idx,
@@ -882,6 +823,7 @@ CEO • tradingboard.ai
                     "referrals": refs,
                     "referredByEmail": referred_by_email,
                     "referredByRef": referred_by_ref,
+                    "emailVerified": email_verified,
                 })
         except Exception:
             applicants = []
@@ -962,6 +904,105 @@ CEO • tradingboard.ai
             participants_out = []
 
         return json_response({"applicants": participants_out}, 200)
+
+    if action == "verify":
+        ref_code_in = (payload.get("ref") or "").strip().lower()
+        if not ref_code_in:
+            return json_response({"error": "Missing ref (referral code)"}, 400)
+        db = get_db()
+        try:
+            query = (
+                db.collection("participants")
+                .where("refCode", "==", ref_code_in)
+                .limit(1)
+            )
+            snap = None
+            for s in query.stream():
+                snap = s
+                break
+            if not snap:
+                return json_response({"error": "Invalid or unknown referral code"}, 404)
+
+            d = snap.to_dict() or {}
+            email = d.get("email") or snap.id
+            already_verified = bool(d.get("emailVerified"))
+
+            # Mark email as verified
+            snap.reference.set({"emailVerified": True}, merge=True)
+
+            # If this participant was referred by someone and that referral has not yet been credited,
+            # increment the referrer's referrals count and mark this referral as credited.
+            referred_by_email = (d.get("referredByEmail") or "").strip()
+            referral_credited = bool(d.get("referralCredited"))
+            referrer_email = None
+            if referred_by_email and not referral_credited:
+                ref_doc = db.collection("participants").document(referred_by_email)
+                ref_snap = ref_doc.get()
+                if ref_snap.exists:
+                    ref_data = ref_snap.to_dict() or {}
+                    current_refs = int(ref_data.get("referrals") or 0)
+                    ref_doc.update({"referrals": current_refs + 1})
+                    snap.reference.set({"referralCredited": True}, merge=True)
+                    referrer_email = referred_by_email
+
+            # If we just credited a referrer, notify them that their rank moved up.
+            if referrer_email:
+                try:
+                    ranks = compute_ranks()
+                    ref_rank = ranks.get(referrer_email)
+                    if ref_rank:
+                        ref_snap = db.collection("participants").document(referrer_email).get()
+                        if ref_snap.exists:
+                            ref_data = ref_snap.to_dict() or {}
+                            ref_tier = tier_display_name(ref_rank)
+                            ref_reward = desired_reward(ref_rank)
+                            ref_rank_label = f"#{ref_rank}"
+                            ref_reward_tiers_block = (
+                                "The Reward Tiers:\n"
+                                "    - ALL: Access to the Private Betas. Be the first to trade on the engine.\n"
+                                "    - TOP 100: Founding Member Status + 50% Discount (3 years).\n"
+                                "    - TOP 50: Founding Member Status + 75% Discount (3 years).\n"
+                                "    - TOP 25: Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.\n"
+                                "    - TOP 10: Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.\n"
+                                "    - TOP 5 (Gold): Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.\n"
+                                "    - TOP 1 (Platinum): Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.\n"
+                            )
+                            ref_ref_code = (ref_data.get("refCode") or "").strip()
+                            invite_link = f"https://tradingboard.ai/?ref={ref_ref_code}#early_access"
+                            ref_myposition_link = f"https://tradingboard.ai/?ref={ref_ref_code}#myposition"
+                            ref_success = (
+                                "Your referral just submitted validation feedback.\n\n"
+                                f"Your TradingBoard.ai Rank: {ref_rank_label}\n\n"
+                                "Thank you for requesting early access to TradingBoard.ai.\n\n"
+                                f"Your Current Status: Rank {ref_rank_label}\n"
+                                f"Current Standing: {ref_tier}\n\n"
+                                "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
+                                "To climb the leaderboard and protect your tier, invite another expert to help us validate the product.\n\n"
+                                "Jump back up:\n"
+                                "Simply share your unique invite link with a colleague. Once they validate the product, you'll leapfrog back toward the top. "
+                                "More referrals = better position. Rank is determined primarily by your number of successful referrals; "
+                                "the date you joined only serves as a tie-breaker for members with the same referral count.\n\n"
+                                f"Your Unique Invite Link: 👉 {invite_link}\n\n"
+                                f"Track your live position here: {ref_myposition_link}\n\n"
+                                "Please note: The final ranking will be frozen at the moment of the official beta release.\n\n"
+                                f"As a member of the {ref_tier}, your current reward is: {ref_reward}\n\n"
+                                f"{ref_reward_tiers_block}\n"
+                                "Best regards,\n\n"
+                                "Rehor Vykoupil\n"
+                                "CEO • tradingboard.ai\n"
+                            )
+                            send_email_to(
+                                recipient=referrer_email,
+                                subject="[TradingBoard.ai] Your rank just moved up",
+                                body_text=ref_success,
+                            )
+                except Exception:
+                    # Best-effort only; verification itself should still succeed.
+                    pass
+
+            return json_response({"success": True, "alreadyVerified": already_verified}, 200)
+        except Exception as e:
+            return json_response({"error": "Server error", "detail": str(e)}, 500)
 
     if action == "unsubscribe":
         ref_code_in = (payload.get("ref") or "").strip().lower()
