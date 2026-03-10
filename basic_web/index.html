@@ -189,6 +189,7 @@
 
         .form-input { border: 1px solid; }
         .btn-loading { pointer-events: none; opacity: 0.7; }
+        .blur-email { filter: blur(6px); user-select: none; }
 
         /* Login box */
         .login-box {
@@ -440,10 +441,10 @@
         <header class="page-header px-5 sm:px-8 lg:px-24">
             <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
                 <div class="max-w-4xl">
-                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Feedback and beta testing</p>
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Feedback and early access</p>
                     <h1 class="hero-h1 hero-h1-validation mb-4">Help Us Build the Right Tool</h1>
                     <p class="hero-p mb-12">
-                        We value your expertise. Briefly review the introduction presentation, answer 4 strategic questions, and submit.
+                        We value your expertise. Briefly review the introduction presentation, answer 4 strategic questions, and submit your feedback—your insights are invaluable to us.
                     </p>
                 </div>
             </div>
@@ -517,7 +518,7 @@
                             Question 3: Product-Market Fit<br>
                             <span class="text-base font-normal text-zinc-300">
                                 If this platform were available tomorrow, would it make sense for you to use it personally as a trader?
-                                (Additionally, if you are a mentor, do you see its value as a tool (Mentor Hub) for your academy?)
+                                (Additionally, if you are a mentor, do you see its value as a tool—Mentor Hub—for your academy?)
                             </span>
                         </label>
                         <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
@@ -566,11 +567,16 @@
                         </div>
                     </div>
 
+                    <div class="mt-4 flex items-center gap-2">
+                        <input type="checkbox" id="validation-early-access" checked>
+                        <label for="validation-early-access" class="text-zinc-400 text-sm">Request Early Access</label>
+                    </div>
+
                     <p id="validation-form-message" class="text-sm text-zinc-400 hidden"></p>
 
                     <button type="submit" id="validation-submit"
                             class="w-full bg-white text-black py-5 rounded-full font-bold uppercase tracking-[0.2em] text-sm hover:bg-zinc-200 transition">
-                        SUBMIT FEEDBACK &amp; JOIN Beta testing
+                        SUBMIT FEEDBACK
                     </button>
                 </form>
             </section>
@@ -580,7 +586,7 @@
                 <div class="mb-8">
                     <h2 class="text-3xl sm:text-4xl font-medium mb-4">Rewards</h2>
                     <p class="text-zinc-400 max-w-2xl">
-                        We are looking for traders to help us to shape our product. By participating in this validation,
+                        We are looking for traders to help us shape our product. By participating in this validation,
                         you enter our priority leaderboard for the following tiers:
                     </p>
                 </div>
@@ -647,6 +653,196 @@
                         <p class="text-xs text-zinc-500 mt-2">
                             More referrals = better position. Rank is determined primarily by your number of successful referrals; join date only breaks ties.
                         </p>
+                    </div>
+                </div>
+            </section>
+        </header>
+    </div>
+
+    <!-- EARLY ACCESS VIEW -->
+    <div id="early_access-page" class="page-view">
+        <header class="page-header px-5 sm:px-8 lg:px-24">
+            <div class="w-full flex flex-col lg:flex-row items-start lg:justify-between lg:gap-12">
+                <div class="max-w-4xl">
+                    <p class="text-[var(--tb-blue)] font-bold tracking-widest text-xs uppercase mb-4">Early access</p>
+                    <h1 class="hero-h1 hero-h1-validation mb-4">Request Early Access</h1>
+                    <p class="hero-p mb-6">
+                        After requesting Early Access, please briefly review the introduction presentation below, answer four strategic questions, and submit your feedback—your insights are invaluable to us.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mb-14">
+                        <input type="email" id="earlyaccess-email" placeholder="Enter your email" class="form-input-custom flex-1" required>
+                        <button type="button" id="earlyaccess-request-btn"
+                                class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase tracking-[0.2em] text-xs hover:bg-zinc-200 transition whitespace-nowrap">
+                            Request Early Access
+                        </button>
+                    </div>
+                    <p id="earlyaccess-message" class="mt-3 text-sm text-zinc-400 hidden"></p>
+                </div>
+            </div>
+
+            <!-- Presentation Section (same as validation) -->
+            <section class="reveal max-w-3xl mx-auto mb-20">
+                <div class="relative max-w-3xl mx-auto group cursor-pointer" onclick="openPdfLightbox('assets/TradingBoard.ai-Intro.pdf')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60"></div>
+                    <img src="assets/TradingBoard.ai-Intro-preview.png"
+                         class="w-full h-[360px] sm:h-[400px] object-cover rounded-3xl border border-white/10 transition group-hover:border-white/30"
+                         alt="Introduction Presentation Preview">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                        <div class="bg-white/10 backdrop-blur-xl p-6 rounded-full border border-white/20 mb-4 group-hover:scale-110 transition">
+                            <i data-lucide="play" class="w-12 h-12"></i>
+                        </div>
+                        <button type="button" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest">
+                            OPEN INTRODUCTION PRESENTATION (FULL SCREEN)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strategic Questions (feedback after requesting access) -->
+            <section class="reveal max-w-3xl mx-auto pb-20">
+                <form id="earlyaccess-form" class="space-y-12">
+                    <!-- Q1 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            Question 1: Core Concept<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                Does migrating the features and logic of desktop platforms like MultiCharts/TradeStation/NinjaTrader/Metatrader to a cloud-native environment make sense to you? From your perspective, is this the right direction?
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
+                            <span>1 - Definitely No</span>
+                            <span>10 - Definitely Yes</span>
+                        </div>
+                        <div class="scale-container">
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-1" value="1"><label for="ea-q1-1">1</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-2" value="2"><label for="ea-q1-2">2</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-3" value="3"><label for="ea-q1-3">3</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-4" value="4"><label for="ea-q1-4">4</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-5" value="5"><label for="ea-q1-5">5</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-6" value="6"><label for="ea-q1-6">6</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-7" value="7"><label for="ea-q1-7">7</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-8" value="8"><label for="ea-q1-8">8</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-9" value="9"><label for="ea-q1-9">9</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q1" id="ea-q1-10" value="10"><label for="ea-q1-10">10</label></div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <input type="radio" name="ea_q1" id="ea-q1-na" value="na">
+                            <label for="ea-q1-na" class="text-zinc-500 text-sm">I am not able to say</label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            Question 2: Red Flags<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                In the solution presented, do you see any "deal-breakers" or hurdles that would prevent a trader from
+                                switching to this platform, assuming 99% code compatibility?
+                            </span>
+                        </label>
+                        <textarea id="earlyaccess-q2" class="form-input-custom h-32" placeholder="Your thoughts..."></textarea>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            Question 3: Product-Market Fit<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                If this platform were available tomorrow, would it make sense for you to use it personally as a trader?
+                                (Additionally, if you are a mentor, do you see its value as a tool—Mentor Hub—for your academy?)
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between text-xs text-zinc-500 mb-3">
+                            <span>1 - Definitely No</span>
+                            <span>10 - Definitely Yes</span>
+                        </div>
+                        <div class="scale-container">
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-1" value="1"><label for="ea-q3-1">1</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-2" value="2"><label for="ea-q3-2">2</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-3" value="3"><label for="ea-q3-3">3</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-4" value="4"><label for="ea-q3-4">4</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-5" value="5"><label for="ea-q3-5">5</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-6" value="6"><label for="ea-q3-6">6</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-7" value="7"><label for="ea-q3-7">7</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-8" value="8"><label for="ea-q3-8">8</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-9" value="9"><label for="ea-q3-9">9</label></div>
+                            <div class="scale-item"><input type="radio" name="ea_q3" id="ea-q3-10" value="10"><label for="ea-q3-10">10</label></div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <input type="radio" name="ea_q3" id="ea-q3-na" value="na">
+                            <label for="ea-q3-na" class="text-zinc-500 text-sm">I am not able to say</label>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <input type="checkbox" id="earlyaccess-mentor" name="ea_mentor" value="yes">
+                            <label for="earlyaccess-mentor" class="text-zinc-400 text-sm">I am a mentor</label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div>
+                        <label class="block text-xl font-medium mb-4">
+                            Question 4: Message to the Founders<br>
+                            <span class="text-base font-normal text-zinc-300">
+                                Do you want to write a message to the founding team?
+                            </span>
+                        </label>
+                        <textarea id="earlyaccess-q4" class="form-input-custom h-32" placeholder="Write to the team..."></textarea>
+                    </div>
+
+                    <p id="earlyaccess-form-message" class="text-sm text-zinc-400 hidden"></p>
+
+                    <button type="button" id="earlyaccess-feedback-btn"
+                            class="w-full bg-white text-black py-5 rounded-full font-bold uppercase tracking-[0.2em] text-sm hover:bg-zinc-200 transition">
+                        SUBMIT FEEDBACK
+                    </button>
+                </form>
+            </section>
+
+            <!-- Rewards Section (same as validation) -->
+            <section class="reveal max-w-4xl mx-auto pb-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl sm:text-4xl font-medium mb-4">Rewards</h2>
+                    <p class="text-zinc-400 max-w-2xl">
+                        We are looking for traders to help us shape our product. By participating in this validation,
+                        you enter our priority leaderboard for the following tiers:
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-blue)] font-bold uppercase text-xs mb-2">ALL</h3>
+                        <p class="text-sm text-white">Access to the Private Betas. Be the first to trade on the engine.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-zinc-300 font-bold uppercase text-xs mb-2">TOP 100</h3>
+                        <p class="text-sm text-white">Founding Member Status + 50% Discount (3 years).</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-zinc-300 font-bold uppercase text-xs mb-2">TOP 50</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years).</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-yellow)] font-bold uppercase text-xs mb-2">TOP 25</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-[var(--tb-yellow)] font-bold uppercase text-xs mb-2">TOP 10</h3>
+                        <p class="text-sm text-white">Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card">
+                        <h3 class="text-amber-400 font-bold uppercase text-xs mb-2">TOP 5 (Gold)</h3>
+                        <p class="text-sm text-white">Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.</p>
+                    </div>
+                    <div class="tier-card md:col-span-2 lg:col-span-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-500/50">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div>
+                                <h3 class="text-blue-400 font-bold uppercase text-xs mb-2">TOP 1 (Platinum)</h3>
+                                <p class="text-sm sm:text-lg text-white">
+                                    Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.
+                                </p>
+                            </div>
+                            <i data-lucide="award" class="w-10 h-10 text-blue-400"></i>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -909,11 +1105,11 @@
         </header>
     </div>
 
-    <!-- APPLICANTS VIEW (admin list) -->
+    <!-- APPLICANTS / PARTICIPANTS VIEW (admin list) -->
     <div id="applicants-page" class="page-view">
         <header class="page-header px-5 sm:px-8 lg:px-24">
             <div class="max-w-5xl mx-auto">
-                <h1 class="text-2xl sm:text-3xl font-semibold mb-6">Applicants</h1>
+                <h1 class="text-2xl sm:text-3xl font-semibold mb-6">Participants</h1>
                 <p class="text-sm text-zinc-400 mb-8">
                     This table shows all emails collected via Early Access and Validation forms, in the order they joined.
                 </p>
@@ -986,6 +1182,23 @@
     </footer>
 
     <script>
+        // --- ANALYTICS HELPERS (GA4 via gtag.js) ---
+        function trackPageView(pageId) {
+            if (typeof gtag !== 'function') return;
+            var loc = window.location;
+            var hash = loc.hash || '';
+            gtag('event', 'page_view', {
+                page_title: pageId,
+                page_location: loc.href,
+                page_path: loc.pathname + hash
+            });
+        }
+
+        function trackEvent(name, params) {
+            if (typeof gtag !== 'function') return;
+            gtag('event', name, params || {});
+        }
+
         // --- ROUTING ---
         // Declare cubes early so resizeCubes can safely reference it
         var cubes = [];
@@ -994,7 +1207,9 @@
             if (hash === 'contact') return 'contact';
             if (hash === 'login') return 'login';
             if (hash === 'validation') return 'validation';
+            if (hash === 'early_access') return 'early_access';
             if (hash === 'applicants') return 'applicants';
+            if (hash === 'participants') return 'applicants';
             if (hash === 'myposition') return 'myposition';
             if (hash === 'unsubscribe') return 'unsubscribe';
             return 'home';
@@ -1004,7 +1219,10 @@
             if (pageId === 'contact') desiredHash = '#contact';
             else if (pageId === 'login') desiredHash = '#login';
             else if (pageId === 'validation') desiredHash = '#validation';
-            else if (pageId === 'applicants') desiredHash = '#applicants';
+            else if (pageId === 'early_access') desiredHash = '#early_access';
+            else if (pageId === 'applicants') {
+                desiredHash = (location.hash === '#participants') ? '#participants' : '#applicants';
+            }
             else if (pageId === 'myposition') desiredHash = '#myposition';
             else if (pageId === 'unsubscribe') desiredHash = '#unsubscribe';
             if (location.hash !== desiredHash) location.hash = desiredHash;
@@ -1018,6 +1236,8 @@
             if (pageId === 'applicants' && typeof loadApplicants === 'function') loadApplicants();
             if (pageId === 'myposition' && typeof loadMyPosition === 'function') loadMyPosition();
             if (pageId === 'unsubscribe' && typeof loadUnsubscribe === 'function') loadUnsubscribe();
+            if (pageId === 'early_access' && typeof loadEarlyAccess === 'function') loadEarlyAccess();
+            trackPageView(pageId);
         }
         window.addEventListener('hashchange', function() { showPage(getPageFromHash()); });
         var initialPage = getPageFromHash();
@@ -1041,9 +1261,28 @@
             var pdfDoc = null;
             var pdfCurrentPage = 1;
             var pdfNumPages = 0;
+            var pdfPageStartTime = null;
+            var pdfName = '';
 
             if (typeof pdfjsLib !== 'undefined') {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            }
+
+            function logPdfDwell() {
+                if (!pdfDoc || !pdfPageStartTime) return;
+                var now = Date.now();
+                var dwell = now - pdfPageStartTime;
+                if (dwell < 0) dwell = 0;
+                pdfPageStartTime = null;
+                if (typeof trackEvent === 'function') {
+                    var pageId = (location.hash || '#home').replace(/^#/, '') || 'home';
+                    trackEvent('pdf_page_dwell', {
+                        pdf_name: pdfName || 'TradingBoard.ai-Intro.pdf',
+                        page_index: pdfCurrentPage,
+                        dwell_ms: dwell,
+                        page: pageId
+                    });
+                }
             }
 
             window.openPdfLightbox = function(pdfUrl) {
@@ -1054,6 +1293,12 @@
                 var nextBtn = document.getElementById('pdf-lightbox-next');
                 var counterEl = document.getElementById('pdf-lightbox-counter');
                 if (!lb || !canvas || !wrap) return;
+                try {
+                    var cleanUrl = (pdfUrl || '').split('?')[0];
+                    pdfName = cleanUrl.split('/').pop() || cleanUrl;
+                } catch (e) {
+                    pdfName = pdfUrl || 'TradingBoard.ai-Intro.pdf';
+                }
                 lb.classList.add('active');
                 pdfCurrentPage = 1;
                 pdfDoc = null;
@@ -1077,6 +1322,7 @@
             };
 
             window.closePdfLightbox = function() {
+                logPdfDwell();
                 if (isPdfFullscreen()) exitPdfFullscreen();
                 document.getElementById('pdf-lightbox').classList.remove('active');
                 pdfDoc = null;
@@ -1146,6 +1392,7 @@
                     page.render(renderCtx).promise.then(function() {
                         wrap.scrollTop = 0;
                         wrap.scrollLeft = 0;
+                        pdfPageStartTime = Date.now();
                     });
                 }).catch(function() {
                     counterEl.textContent = 'Error rendering page.';
@@ -1154,12 +1401,14 @@
 
             window.pdfLightboxPrev = function() {
                 if (pdfDoc && pdfCurrentPage > 1) {
+                    logPdfDwell();
                     pdfCurrentPage--;
                     renderPdfPage();
                 }
             };
             window.pdfLightboxNext = function() {
                 if (pdfDoc && pdfCurrentPage < pdfNumPages) {
+                    logPdfDwell();
                     pdfCurrentPage++;
                     renderPdfPage();
                 }
@@ -1169,9 +1418,24 @@
                 if (e.target === this || e.target.id === 'pdf-lightbox-content') closePdfLightbox();
             });
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && document.getElementById('pdf-lightbox').classList.contains('active')) {
-                    if (isPdfFullscreen()) exitPdfFullscreen().then(function() { updatePdfFullscreenIcon(); });
-                    else closePdfLightbox();
+                var lbActive = document.getElementById('pdf-lightbox').classList.contains('active');
+                if (!lbActive) return;
+                if (e.key === 'Escape') {
+                    if (isPdfFullscreen()) {
+                        exitPdfFullscreen().then(function() { updatePdfFullscreenIcon(); });
+                    } else {
+                        closePdfLightbox();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    if (typeof window.pdfLightboxPrev === 'function') {
+                        e.preventDefault();
+                        window.pdfLightboxPrev();
+                    }
+                } else if (e.key === 'ArrowRight') {
+                    if (typeof window.pdfLightboxNext === 'function') {
+                        e.preventDefault();
+                        window.pdfLightboxNext();
+                    }
                 }
             });
             window.addEventListener('resize', function() {
@@ -1247,12 +1511,21 @@
             if (!btn || !email) return;
             btn.classList.add('btn-loading');
             btn.disabled = true;
+            var refCode = (new URL(window.location.href)).searchParams.get('ref') || '';
+            trackEvent('early_access_request', {
+                source: source || 'M1',
+                has_ref: !!refCode,
+                page: (location.hash || '#home').replace(/^#/, '') || 'home'
+            });
             fetch(FORM_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'earlyAccess', email: email, source: source || 'M1' })
+                body: JSON.stringify({ action: 'earlyaccess', email: email, source: source || 'M1', ref: refCode })
             }).then(function(r) {
-                if (r.ok) showCtaMessage(messageIds, 'Thanks! We\'ll be in touch.', false);
+                if (r.ok) {
+                    var msg = 'Thanks! You’re on the list. Check your inbox! While you’re here, please answer the 4 questions below to help us ensure the platform meets your specific trading needs.';
+                    showCtaMessage(messageIds, msg, false);
+                }
                 else return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
             }).catch(function(err) {
                 showCtaMessage(messageIds, err.message || 'Something went wrong. Please try again.', true);
@@ -1268,6 +1541,111 @@
             var email = (document.getElementById('cta-email-bottom') || {}).value;
             submitEarlyAccess(email, 'cta-submit-bottom', ['cta-message-bottom'], 'M2');
         });
+
+        function loadEarlyAccess() {
+            var emailInput = document.getElementById('earlyaccess-email');
+            var primaryBtn = document.getElementById('earlyaccess-request-btn');
+            var msgEl = document.getElementById('earlyaccess-message');
+            var formMsgEl = document.getElementById('earlyaccess-form-message');
+            var feedbackBtn = document.getElementById('earlyaccess-feedback-btn');
+            if (!emailInput || !primaryBtn) return;
+
+            if (!primaryBtn._wired) {
+                primaryBtn._wired = true;
+                primaryBtn.addEventListener('click', function() {
+                    var email = (emailInput.value || '').trim();
+                    if (!email) {
+                        if (msgEl) {
+                            msgEl.textContent = 'Please enter your email.';
+                            msgEl.classList.remove('hidden');
+                            msgEl.classList.add('text-red-400');
+                        }
+                        return;
+                    }
+                    if (msgEl) { msgEl.classList.add('hidden'); msgEl.classList.remove('text-red-400'); }
+                    submitEarlyAccess(email, 'earlyaccess-request-btn', ['earlyaccess-message'], 'EA');
+                });
+            }
+
+            if (feedbackBtn && !feedbackBtn._wired) {
+                feedbackBtn._wired = true;
+                feedbackBtn.addEventListener('click', function() {
+                    var email = (emailInput.value || '').trim();
+                    if (!email) {
+                        if (formMsgEl) {
+                            formMsgEl.textContent = 'Please enter your email above before submitting feedback.';
+                            formMsgEl.classList.remove('hidden');
+                            formMsgEl.classList.add('text-red-400');
+                        }
+                        return;
+                    }
+                    if (formMsgEl) {
+                        formMsgEl.classList.add('hidden');
+                        formMsgEl.classList.remove('text-red-400');
+                    }
+
+                    function getEaScale(name) {
+                        var checked = document.querySelector('input[name="' + name + '"]:checked');
+                        return checked ? checked.value : '';
+                    }
+
+                    var notesParts = [];
+                    var q1 = getEaScale('ea_q1');
+                    var q2 = (document.getElementById('earlyaccess-q2') && document.getElementById('earlyaccess-q2').value || '').trim();
+                    var q3 = getEaScale('ea_q3');
+                    var q4 = (document.getElementById('earlyaccess-q4') && document.getElementById('earlyaccess-q4').value || '').trim();
+                    var isMentor = document.getElementById('earlyaccess-mentor') && document.getElementById('earlyaccess-mentor').checked;
+
+                    notesParts.push('Email (early access feedback): ' + email);
+                    if (q1) notesParts.push('Q1 (Core Concept): ' + q1);
+                    if (q2) { notesParts.push('Q2 (Red Flags):'); notesParts.push(q2); }
+                    if (q3) notesParts.push('Q3 (Product-Market Fit): ' + q3);
+                    if (isMentor) notesParts.push('I am a mentor: Yes');
+                    if (q4) { notesParts.push('Q4 (Message to founders):'); notesParts.push(q4); }
+
+                    var notes = notesParts.join('\n');
+                    var btn = feedbackBtn;
+                    btn.classList.add('btn-loading');
+                    btn.disabled = true;
+                    trackEvent('validation_submit', {
+                        early_access_opt_in: true,
+                        page: 'early_access'
+                    });
+                    fetch(FORM_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'validation',
+                            email: email,
+                            notes: notes,
+                            ref: (new URL(window.location.href)).searchParams.get('ref') || '',
+                            name: '',
+                            surname: '',
+                            isMentor: isMentor,
+                            earlyAccessOptIn: true
+                        })
+                    }).then(function(r) {
+                        if (!r.ok) {
+                            return r.json().then(function(d) { throw new Error(d.error || d.message || 'Request failed'); });
+                        }
+                        if (formMsgEl) {
+                            formMsgEl.textContent = 'Thanks for your feedback. Your responses have been recorded.';
+                            formMsgEl.classList.remove('hidden');
+                            formMsgEl.classList.remove('text-red-400');
+                        }
+                    }).catch(function(err) {
+                        if (formMsgEl) {
+                            formMsgEl.textContent = err.message || 'Something went wrong. Please try again.';
+                            formMsgEl.classList.remove('hidden');
+                            formMsgEl.classList.add('text-red-400');
+                        }
+                    }).finally(function() {
+                        btn.classList.remove('btn-loading');
+                        btn.disabled = false;
+                    });
+                });
+            }
+        }
 
         // Validation presentation lightbox
         (function() {
@@ -1313,6 +1691,7 @@
             var btn = document.getElementById('validation-submit');
             var msgEl = document.getElementById('validation-form-message');
             var successBox = document.getElementById('validation-success');
+            var earlyAccessCheckbox = document.getElementById('validation-early-access');
 
             var url = new URL(window.location.href);
             var referralCode = url.searchParams.get('ref') || '';
@@ -1344,6 +1723,7 @@
                 var first = (firstInput && firstInput.value || '').trim();
                 var last = (lastInput && lastInput.value || '').trim();
                 var isMentor = document.getElementById('validation-mentor') && document.getElementById('validation-mentor').checked;
+                var wantsEarlyAccess = earlyAccessCheckbox ? !!earlyAccessCheckbox.checked : true;
 
                 if (first || last) notesParts.push('Name: ' + [first, last].filter(Boolean).join(' '));
                 notesParts.push('Email (validation form): ' + email);
@@ -1363,10 +1743,23 @@
                     btn.classList.add('btn-loading');
                     btn.disabled = true;
                 }
+                trackEvent('validation_submit', {
+                    early_access_opt_in: wantsEarlyAccess,
+                    page: 'validation'
+                });
                 fetch(FORM_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'validation', email: email, notes: notes, ref: getReferralCode(), name: first, surname: last, isMentor: isMentor })
+                    body: JSON.stringify({
+                        action: 'validation',
+                        email: email,
+                        notes: notes,
+                        ref: getReferralCode(),
+                        name: first,
+                        surname: last,
+                        isMentor: isMentor,
+                        earlyAccessOptIn: wantsEarlyAccess
+                    })
                 }).then(function(r) {
                     return r.text().then(function(text) {
                         var d;
@@ -1409,14 +1802,15 @@
             if (!tbody) return;
             var apiUrl = 'https://sendformemail-vq452mc6iq-uc.a.run.app';
             if (statusEl) {
-                statusEl.textContent = 'Loading applicants...';
+                statusEl.textContent = 'Loading participants...';
                 statusEl.classList.remove('hidden');
             }
 
+            var isParticipantsView = (location.hash === '#participants');
             fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'applicants' })
+                body: JSON.stringify({ action: isParticipantsView ? 'participants' : 'applicants' })
             }).then(function(r) {
                 return r.text().then(function(text) {
                     if (!r.ok) {
@@ -1445,7 +1839,8 @@
                         return cell;
                     }
                     tr.appendChild(td(a.order != null ? a.order.toString() : ''));
-                    tr.appendChild(td(a.email || ''));
+                    var emailExtra = isParticipantsView ? 'blur-email' : '';
+                    tr.appendChild(td(a.email || '', emailExtra));
                     tr.appendChild(td(a.source || ''));
                     tr.appendChild(td(a.name || ''));
                     tr.appendChild(td(a.surname || ''));
@@ -1467,15 +1862,17 @@
                     detailsCell.textContent = a.notes || '';
                     tr.appendChild(detailsCell);
                     tr.appendChild(td(a.referredByRef || ''));
-                    tr.appendChild(td(a.referredByEmail || ''));
+                    var refEmailExtra = isParticipantsView ? 'blur-email' : '';
+                    tr.appendChild(td(a.referredByEmail || '', refEmailExtra));
                     tbody.appendChild(tr);
                 });
                 if (statusEl) {
-                    statusEl.textContent = list.length ? ('Loaded ' + list.length + ' applicants.') : 'No applicants yet.';
+                    statusEl.textContent = list.length ? ('Loaded ' + list.length + ' participants.') : 'No participants yet.';
                 }
             }).catch(function(err) {
                 if (statusEl) {
-                    statusEl.textContent = err.message || 'Failed to load applicants.';
+                    var detail = err && err.message ? err.message : 'Unknown error';
+                    statusEl.textContent = 'Failed to load applicants. Details: ' + detail + ' (URL: ' + apiUrl + ')';
                     statusEl.classList.remove('hidden');
                     statusEl.classList.add('text-red-400');
                 }
@@ -1521,6 +1918,11 @@
                 dataEl.textContent = lines.join('\n') || '—';
                 statusEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
+                trackEvent('myposition_view', {
+                    rank: d.rank || null,
+                    total_participants: d.totalParticipants || 0,
+                    tier: d.tier || ''
+                });
             }).catch(function(err) {
                 statusEl.textContent = err.message || 'Failed to load your position.';
                 statusEl.classList.remove('hidden');
@@ -1554,6 +1956,7 @@
             }).then(function() {
                 statusEl.classList.add('hidden');
                 doneEl.classList.remove('hidden');
+                trackEvent('unsubscribe_rank_alerts', {});
             }).catch(function(err) {
                 statusEl.textContent = err.message || 'Could not unsubscribe. Please try the link from your email again.';
                 statusEl.classList.add('text-red-400');
