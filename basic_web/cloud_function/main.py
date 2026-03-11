@@ -3,13 +3,12 @@ Google Cloud Function (Python): receives form/early-access submissions and sends
 No database — email only. Set GMAIL_USER, GMAIL_APP_PASSWORD, and TO_EMAIL in the function config or Secret Manager.
 """
 
-# --- Bumped notification config (hardcoded) ---
-# True = send "you've been bumped" email immediately when rank drops.
-# False = enqueue and send once per day at BUMPED_EMAIL_TIME (use Cloud Scheduler to call action=send_bumped_digest).
-SEND_BUMPED_IMMEDIATELY = True
-# When using daily digest: send time in given timezone (e.g. "13:00" = 1:00 PM).
-BUMPED_EMAIL_TIME = "13:00"
-BUMPED_EMAIL_TIMEZONE = "Europe/Prague"
+# --- Standing notification config ---
+# Rank-change emails (moved up / bumped down) are sent via a daily digest.
+# Cloud Scheduler should call action=send_bumped_digest periodically (e.g. every 5–15 minutes).
+# The function will only send emails when the current UTC time matches STANDING_EMAIL_TIME.
+DEFAULT_STANDING_EMAIL_TIME = "14:00"  # 14:00 GMT/UTC
+STANDING_EMAIL_TIMEZONE = "UTC"
 
 import json
 import os
@@ -17,12 +16,17 @@ import random
 import re
 import smtplib
 import string
+import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Any
 
 import functions_framework
 from google.cloud import firestore
+try:
+    from zoneinfo import ZoneInfo
+except Exception:  # pragma: no cover - fallback for old runtimes
+    ZoneInfo = None
 
 
 CORS_HEADERS = {
@@ -342,6 +346,57 @@ Manage your notifications: You are receiving this because you participated in th
 Please note: Unsubscribing from alerts will not remove your position from the leaderboard; you simply won't be notified if your rank changes."""
 
     send_email_to(recipient=recipient_email, subject=subject, body_text=body)
+
+
+def send_rank_up_email(
+    recipient_email: str,
+    new_rank: int,
+    ref_code: str,
+) -> None:
+    """Send the 'your rank moved up' notification email."""
+    tier = tier_display_name(new_rank)
+    reward = desired_reward(new_rank)
+    rank_label = f"#{new_rank}"
+    reward_tiers_block = (
+        "The Reward Tiers:\n"
+        "    - ALL: Access to the Private Betas. Be the first to trade on the engine.\n"
+        "    - TOP 100: Founding Member Status + 50% Discount (3 years).\n"
+        "    - TOP 50: Founding Member Status + 75% Discount (3 years).\n"
+        "    - TOP 25: Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.\n"
+        "    - TOP 10: Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.\n"
+        "    - TOP 5 (Gold): Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.\n"
+        "    - TOP 1 (Platinum): Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.\n"
+    )
+    invite_link = f"https://tradingboard.ai/?ref={ref_code}#early_access"
+    myposition_link = f"https://tradingboard.ai/?ref={ref_code}#myposition"
+
+    body = (
+        "Your referral just joined Early Access and confirmed their email.\n\n"
+        f"Your TradingBoard.ai Rank: {rank_label}\n\n"
+        "Thank you for requesting early access to TradingBoard.ai.\n\n"
+        f"Your Current Status: Rank {rank_label}\n"
+        f"Current Standing: {tier}\n\n"
+        "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
+        "To climb the leaderboard and protect your tier, invite another expert to help us validate the product.\n\n"
+        "Jump back up:\n"
+        "Simply share your unique invite link with a colleague. Once they validate the product, you'll leapfrog back toward the top. "
+        "More referrals = better position. Rank is determined primarily by your number of successful referrals; "
+        "the date you joined only serves as a tie-breaker for members with the same referral count.\n\n"
+        f"Your Unique Invite Link: 👉 {invite_link}\n\n"
+        f"Track your live position here: {myposition_link}\n\n"
+        "Please note: The final ranking will be frozen at the moment of the official beta release.\n\n"
+        f"As a member of the {tier}, your current reward is: {reward}\n\n"
+        f"{reward_tiers_block}\n"
+        "Best regards,\n\n"
+        "Rehor Vykoupil\n"
+        "CEO • tradingboard.ai\n"
+    )
+
+    send_email_to(
+        recipient=recipient_email,
+        subject="[TradingBoard.ai] Your rank just moved up",
+        body_text=body,
+    )
 
 
 @functions_framework.http
@@ -962,63 +1017,28 @@ CEO • tradingboard.ai
                     snap.reference.set({"referralCredited": True}, merge=True)
                     referrer_email = referred_by_email
 
-            # If we just credited a referrer, notify them that their rank moved up
-            # and also notify any participants whose rank worsened ("bumped").
+            # If we just credited a referrer, enqueue daily standing notifications
+            # for the referrer (moved up) and any participants whose rank worsened ("bumped").
             if referrer_email:
                 try:
                     # Ranks after referral credit
                     ranks_after = compute_ranks()
 
-                    # --- Referrer "rank moved up" email ---
-                    ref_rank = ranks_after.get(referrer_email)
-                    if ref_rank:
-                        ref_snap = db.collection("participants").document(referrer_email).get()
-                        if ref_snap.exists:
-                            ref_data = ref_snap.to_dict() or {}
-                            ref_tier = tier_display_name(ref_rank)
-                            ref_reward = desired_reward(ref_rank)
-                            ref_rank_label = f"#{ref_rank}"
-                            ref_reward_tiers_block = (
-                                "The Reward Tiers:\n"
-                                "    - ALL: Access to the Private Betas. Be the first to trade on the engine.\n"
-                                "    - TOP 100: Founding Member Status + 50% Discount (3 years).\n"
-                                "    - TOP 50: Founding Member Status + 75% Discount (3 years).\n"
-                                "    - TOP 25: Founding Member Status + 75% Discount (3 years) + 1,000 Compute Credits.\n"
-                                "    - TOP 10: Founding Member Status + 75% Discount (3 years) + 10,000 Compute Credits.\n"
-                                "    - TOP 5 (Gold): Founding Member Status + 100% Discount (3 years) + 10,000 Compute Credits.\n"
-                                "    - TOP 1 (Platinum): Founding Member Status + 100% Discount (10 YEARS) + 50,000 Compute Credits.\n"
-                            )
-                            ref_ref_code = (ref_data.get("refCode") or "").strip()
-                            invite_link = f"https://tradingboard.ai/?ref={ref_ref_code}#early_access"
-                            ref_myposition_link = f"https://tradingboard.ai/?ref={ref_ref_code}#myposition"
-                            ref_success = (
-                                "Your referral just joined Early Access and confirmed their email.\n\n"
-                                f"Your TradingBoard.ai Rank: {ref_rank_label}\n\n"
-                                "Thank you for requesting early access to TradingBoard.ai.\n\n"
-                                f"Your Current Status: Rank {ref_rank_label}\n"
-                                f"Current Standing: {ref_tier}\n\n"
-                                "Don't get bumped! Rankings are live. If others refer more members, your rank will drop. "
-                                "To climb the leaderboard and protect your tier, invite another expert to help us validate the product.\n\n"
-                                "Jump back up:\n"
-                                "Simply share your unique invite link with a colleague. Once they validate the product, you'll leapfrog back toward the top. "
-                                "More referrals = better position. Rank is determined primarily by your number of successful referrals; "
-                                "the date you joined only serves as a tie-breaker for members with the same referral count.\n\n"
-                                f"Your Unique Invite Link: 👉 {invite_link}\n\n"
-                                f"Track your live position here: {ref_myposition_link}\n\n"
-                                "Please note: The final ranking will be frozen at the moment of the official beta release.\n\n"
-                                f"As a member of the {ref_tier}, your current reward is: {ref_reward}\n\n"
-                                f"{ref_reward_tiers_block}\n"
-                                "Best regards,\n\n"
-                                "Rehor Vykoupil\n"
-                                "CEO • tradingboard.ai\n"
-                            )
-                            send_email_to(
-                                recipient=referrer_email,
-                                subject="[TradingBoard.ai] Your rank just moved up",
-                                body_text=ref_success,
-                            )
+                    # --- Referrer "rank moved up" pending notification ---
+                    ref_old_rank = ranks_before.get(referrer_email) or 0
+                    ref_new_rank = ranks_after.get(referrer_email) or 0
+                    if ref_old_rank and ref_new_rank and ref_new_rank != ref_old_rank:
+                        db.collection("bumped_pending").document(referrer_email).set(
+                            {
+                                "oldRank": ref_old_rank,
+                                "newRank": ref_new_rank,
+                                "detectedAt": firestore.SERVER_TIMESTAMP,
+                                "kind": "up",
+                            },
+                            merge=True,
+                        )
 
-                    # --- "You've been bumped" notifications ---
+                    # --- "You've been bumped" pending notifications ---
                     bumped = {}
                     for em, old_rank in ranks_before.items():
                         new_rank = ranks_after.get(em)
@@ -1037,20 +1057,16 @@ CEO • tradingboard.ai
                             if not ref_code_b:
                                 continue
                             first_name = (d_b.get("name") or "").strip() or "there"
-                            if SEND_BUMPED_IMMEDIATELY:
-                                send_bumped_email(
-                                    recipient_email=bumped_email,
-                                    first_name=first_name,
-                                    old_rank=old_rank,
-                                    new_rank=new_rank,
-                                    ref_code=ref_code_b,
-                                )
-                            else:
-                                db.collection("bumped_pending").document(bumped_email).set({
+                            db.collection("bumped_pending").document(bumped_email).set(
+                                {
                                     "oldRank": old_rank,
                                     "newRank": new_rank,
                                     "detectedAt": firestore.SERVER_TIMESTAMP,
-                                })
+                                    "kind": "down",
+                                    "firstName": first_name,
+                                },
+                                merge=True,
+                            )
                         except Exception:
                             pass
                 except Exception:
@@ -1080,15 +1096,41 @@ CEO • tradingboard.ai
             return json_response({"error": "Server error", "detail": str(e)}, 500)
 
     if action == "send_bumped_digest":
-        # Called by Cloud Scheduler at BUMPED_EMAIL_TIME (e.g. 13:00 CET). Sends one email per pending bumped user.
+        # Called by Cloud Scheduler periodically. Sends one standing email per pending user,
+        # but only when current UTC time matches STANDING_EMAIL_TIME (or 14:00 GMT by default).
         db = get_db()
         try:
+            # Determine if it's time to send the daily standing digest
+            time_str = get_config("STANDING_EMAIL_TIME") or DEFAULT_STANDING_EMAIL_TIME
+            try:
+                hour_s, minute_s = time_str.split(":", 1)
+                target_hour = int(hour_s)
+                target_minute = int(minute_s)
+            except Exception:
+                target_hour = 14
+                target_minute = 0
+
+            tz = None
+            if ZoneInfo is not None:
+                try:
+                    tz = ZoneInfo(STANDING_EMAIL_TIMEZONE)
+                except Exception:
+                    tz = None
+            if tz is None:
+                tz = datetime.timezone.utc
+
+            now = datetime.datetime.now(tz)
+            if now.hour != target_hour or now.minute != target_minute:
+                # Not the configured send time – exit without sending.
+                return json_response({"success": True, "skipped": True}, 200)
+
             pending = list(db.collection("bumped_pending").stream())
             for snap in pending:
                 bumped_email = snap.id
                 d = snap.to_dict() or {}
                 old_rank = int(d.get("oldRank") or 0)
                 new_rank = int(d.get("newRank") or 0)
+                kind = (d.get("kind") or "down").lower()
                 if not bumped_email or not old_rank or not new_rank:
                     snap.reference.delete()
                     continue
@@ -1107,15 +1149,22 @@ CEO • tradingboard.ai
                 # Use current rank in case it changed again
                 ranks = compute_ranks()
                 current_rank = ranks.get(bumped_email) or new_rank
-                first_name = (part.get("name") or "").strip() or "there"
+                first_name = (part.get("name") or "").strip() or d.get("firstName") or "there"
                 try:
-                    send_bumped_email(
-                        recipient_email=bumped_email,
-                        first_name=first_name,
-                        old_rank=old_rank,
-                        new_rank=current_rank,
-                        ref_code=ref_code_b,
-                    )
+                    if kind == "up":
+                        send_rank_up_email(
+                            recipient_email=bumped_email,
+                            new_rank=current_rank,
+                            ref_code=ref_code_b,
+                        )
+                    else:
+                        send_bumped_email(
+                            recipient_email=bumped_email,
+                            first_name=first_name,
+                            old_rank=old_rank,
+                            new_rank=current_rank,
+                            ref_code=ref_code_b,
+                        )
                 except Exception:
                     pass
                 snap.reference.delete()
