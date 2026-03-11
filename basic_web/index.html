@@ -1124,7 +1124,7 @@
                                 <th class="px-3 py-3 text-left">Source</th>
                                 <th class="px-3 py-3 text-left">Name</th>
                                 <th class="px-3 py-3 text-left">Surname</th>
-                                <th class="px-3 py-3 text-left">Submitted</th>
+                                <th class="px-3 py-3 text-left">Entry time</th>
                                 <th class="px-3 py-3 text-left"># of referrals</th>
                                 <th class="px-3 py-3 text-left">Details</th>
                                 <th class="px-3 py-3 text-left">Ref</th>
@@ -1920,18 +1920,19 @@
                     tr.appendChild(td(a.source || ''));
                     tr.appendChild(td(a.name || ''));
                     tr.appendChild(td(a.surname || ''));
-                    var submittedText = '';
-                    if (a.submittedAt) {
+                    var entryText = '';
+                    var entryRaw = a.entryAt || a.submittedAt;
+                    if (entryRaw) {
                         try {
-                            var dt = new Date(a.submittedAt);
-                            submittedText = isNaN(dt.getTime()) ? a.submittedAt : dt.toLocaleString();
+                            var dt = new Date(entryRaw);
+                            entryText = isNaN(dt.getTime()) ? entryRaw : dt.toLocaleString();
                         } catch (e) {
-                            submittedText = a.submittedAt;
+                            entryText = entryRaw;
                         }
                     } else {
-                        submittedText = '—';
+                        entryText = '—';
                     }
-                    tr.appendChild(td(submittedText));
+                    tr.appendChild(td(entryText));
                     tr.appendChild(td((a.referrals != null ? a.referrals : 0).toString()));
                     var detailsCell = document.createElement('td');
                     detailsCell.className = 'px-3 py-2 align-top text-xs text-zinc-400 whitespace-pre-wrap';

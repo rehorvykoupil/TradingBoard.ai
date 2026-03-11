@@ -75,8 +75,9 @@ def send_email(subject: str, body_text: str) -> None:
         raise RuntimeError("GMAIL_USER and GMAIL_APP_PASSWORD must be set")
     if not to_email:
         to_email = user
-    # Use explicit FROM_EMAIL if set, otherwise fall back to the authenticated user (e.g. rehor@tradingboard.ai)
-    from_email = sanitize_email(get_config("FROM_EMAIL") or user) or user
+    # Visible sender: FROM_EMAIL or support@tradingboard.ai. GMAIL_USER is only for SMTP login.
+    # support@ must be added as "Send mail as" on the GMAIL_USER account or Gmail may reject (550).
+    from_email = sanitize_email(get_config("FROM_EMAIL") or "support@tradingboard.ai") or user
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = from_email
@@ -96,8 +97,9 @@ def send_email_to(recipient: str, subject: str, body_text: str) -> None:
     password = get_config("GMAIL_APP_PASSWORD")
     if not user or not password:
         raise RuntimeError("GMAIL_USER and GMAIL_APP_PASSWORD must be set")
-    # Use explicit FROM_EMAIL if set, otherwise fall back to the authenticated user (e.g. rehor@tradingboard.ai)
-    from_email = sanitize_email(get_config("FROM_EMAIL") or user) or user
+    # Visible sender: FROM_EMAIL or support@tradingboard.ai. GMAIL_USER is only for SMTP login.
+    # support@ must be added as "Send mail as" on the GMAIL_USER account or Gmail may reject (550).
+    from_email = sanitize_email(get_config("FROM_EMAIL") or "support@tradingboard.ai") or user
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = from_email
@@ -807,8 +809,13 @@ CEO • tradingboard.ai
                                 if len(parts) > 1:
                                     surname = " ".join(parts[1:])
                             break
-                t = d.get("validationSubmittedAt")
-                submitted_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                t = d.get("createdAt")
+                entry_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                if not entry_at:
+                    t = d.get("validationSubmittedAt")
+                    entry_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                t_sub = d.get("validationSubmittedAt")
+                submitted_at = t_sub.isoformat() if (t_sub and hasattr(t_sub, "isoformat")) else None
                 referred_by_email = d.get("referredByEmail") or ""
                 email_verified = bool(d.get("emailVerified"))
                 referred_by_ref = d.get("referredByRef") or ""
@@ -819,6 +826,7 @@ CEO • tradingboard.ai
                     "name": name,
                     "surname": surname,
                     "notes": notes,
+                    "entryAt": entry_at,
                     "submittedAt": submitted_at,
                     "referrals": refs,
                     "referredByEmail": referred_by_email,
@@ -882,8 +890,13 @@ CEO • tradingboard.ai
                 except Exception:
                     notes_redacted = notes
 
-                t = d.get("validationSubmittedAt")
-                submitted_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                t = d.get("createdAt")
+                entry_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                if not entry_at:
+                    t = d.get("validationSubmittedAt")
+                    entry_at = t.isoformat() if (t and hasattr(t, "isoformat")) else None
+                t_sub = d.get("validationSubmittedAt")
+                submitted_at = t_sub.isoformat() if (t_sub and hasattr(t_sub, "isoformat")) else None
                 ref_by_email_full = d.get("referredByEmail") or ""
                 referred_by_email = mask_email_for_public(ref_by_email_full)
                 referred_by_ref = d.get("referredByRef") or ""
@@ -895,6 +908,7 @@ CEO • tradingboard.ai
                     "name": name,
                     "surname": surname,
                     "notes": notes_redacted,
+                    "entryAt": entry_at,
                     "submittedAt": submitted_at,
                     "referrals": refs,
                     "referredByEmail": referred_by_email,
@@ -927,6 +941,9 @@ CEO • tradingboard.ai
             email = d.get("email") or snap.id
             already_verified = bool(d.get("emailVerified"))
 
+            # Ranks before any referral credit is applied
+            ranks_before = compute_ranks()
+
             # Mark email as verified
             snap.reference.set({"emailVerified": True}, merge=True)
 
@@ -945,11 +962,15 @@ CEO • tradingboard.ai
                     snap.reference.set({"referralCredited": True}, merge=True)
                     referrer_email = referred_by_email
 
-            # If we just credited a referrer, notify them that their rank moved up.
+            # If we just credited a referrer, notify them that their rank moved up
+            # and also notify any participants whose rank worsened ("bumped").
             if referrer_email:
                 try:
-                    ranks = compute_ranks()
-                    ref_rank = ranks.get(referrer_email)
+                    # Ranks after referral credit
+                    ranks_after = compute_ranks()
+
+                    # --- Referrer "rank moved up" email ---
+                    ref_rank = ranks_after.get(referrer_email)
                     if ref_rank:
                         ref_snap = db.collection("participants").document(referrer_email).get()
                         if ref_snap.exists:
@@ -971,7 +992,7 @@ CEO • tradingboard.ai
                             invite_link = f"https://tradingboard.ai/?ref={ref_ref_code}#early_access"
                             ref_myposition_link = f"https://tradingboard.ai/?ref={ref_ref_code}#myposition"
                             ref_success = (
-                                "Your referral just submitted validation feedback.\n\n"
+                                "Your referral just joined Early Access and confirmed their email.\n\n"
                                 f"Your TradingBoard.ai Rank: {ref_rank_label}\n\n"
                                 "Thank you for requesting early access to TradingBoard.ai.\n\n"
                                 f"Your Current Status: Rank {ref_rank_label}\n"
@@ -996,6 +1017,42 @@ CEO • tradingboard.ai
                                 subject="[TradingBoard.ai] Your rank just moved up",
                                 body_text=ref_success,
                             )
+
+                    # --- "You've been bumped" notifications ---
+                    bumped = {}
+                    for em, old_rank in ranks_before.items():
+                        new_rank = ranks_after.get(em)
+                        if new_rank is not None and new_rank > old_rank:
+                            bumped[em] = (old_rank, new_rank)
+
+                    for bumped_email, (old_rank, new_rank) in bumped.items():
+                        try:
+                            snap_b = db.collection("participants").document(bumped_email).get()
+                            if not snap_b.exists:
+                                continue
+                            d_b = snap_b.to_dict() or {}
+                            if d_b.get("unsubscribedFromRankAlerts"):
+                                continue
+                            ref_code_b = (d_b.get("refCode") or "").strip()
+                            if not ref_code_b:
+                                continue
+                            first_name = (d_b.get("name") or "").strip() or "there"
+                            if SEND_BUMPED_IMMEDIATELY:
+                                send_bumped_email(
+                                    recipient_email=bumped_email,
+                                    first_name=first_name,
+                                    old_rank=old_rank,
+                                    new_rank=new_rank,
+                                    ref_code=ref_code_b,
+                                )
+                            else:
+                                db.collection("bumped_pending").document(bumped_email).set({
+                                    "oldRank": old_rank,
+                                    "newRank": new_rank,
+                                    "detectedAt": firestore.SERVER_TIMESTAMP,
+                                })
+                        except Exception:
+                            pass
                 except Exception:
                     # Best-effort only; verification itself should still succeed.
                     pass

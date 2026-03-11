@@ -1,5 +1,6 @@
 # Firebase (cache only; keep .firebaserc and firebase.json)
 .firebase/
+myDeploy.txt
 
 # Python
 __pycache__/
